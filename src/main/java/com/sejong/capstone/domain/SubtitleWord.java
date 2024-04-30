@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(name = "subtitle_word")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
-public class SubtitleWord {
+public class SubtitleWord extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "word_id")

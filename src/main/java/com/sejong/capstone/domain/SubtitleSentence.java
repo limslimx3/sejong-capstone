@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
-public class SubtitleSentence {
+public class SubtitleSentence extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "subtitle_id")

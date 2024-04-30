@@ -7,7 +7,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "tag_video")
 @Getter
-public class VideoTag {
+public class VideoTag extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "tag_id")

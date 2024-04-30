@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "community_post")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
-public class Post {
+public class Post extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "post_id")
@@ -56,7 +56,13 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostTag> postTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    /**
+     * 현재 생각으로는 Comment 도메인 측에서 연관관계 편의 메서드를 통해 Post 도메인의 comments 필드값을 수정하면 변경감지에 의해 Post 수정시
+     * 자동으로 커밋 시점에 DB에 Update 쿼리가 날아가게 된다(물론, Post 도메인이 em.find()를 통해 가져오는 등 영속상태라는 가정하에)
+     * Post 도메인의 comments 필드값을 CascadeType.ALL로 명시하였기 때문에 Comment 도메인 역시 em.persist() 필요없이 자동으로 DB에 쿼리가 날아간다
+     * => 이렇게 할지 아니면 Comment 도메인에 대한 Repository를 따로 만들어 각각의 Comment 도메인에 대해 em.persist()로 처리할지 고민 필요!!!
+     */
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     /**

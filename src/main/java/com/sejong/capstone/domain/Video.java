@@ -14,7 +14,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
-public class Video {
+public class Video extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "video_id")
