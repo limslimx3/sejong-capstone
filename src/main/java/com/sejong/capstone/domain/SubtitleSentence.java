@@ -34,7 +34,8 @@ public class SubtitleSentence {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    @OneToMany(mappedBy = "subtitleSentence")
+    //CascadeType.ALL옵션을 통해 SubtitleSentence가 삽입,수정,삭제 될시에 SubtitleWord도 자동으로 같이 작업을 수행하도록 설정
+    @OneToMany(mappedBy = "subtitleSentence", cascade = CascadeType.ALL)
     private List<SubtitleWord> subtitleWords = new ArrayList<>();
 
     /**

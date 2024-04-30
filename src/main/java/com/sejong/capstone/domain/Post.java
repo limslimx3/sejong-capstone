@@ -56,7 +56,7 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostTag> postTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
     /**
@@ -70,11 +70,6 @@ public class Post {
     public void addPostTags(PostTag postTag) {
         this.postTags.add(postTag);
         postTag.setPost(this);
-    }
-
-    public void addComments(Comment comment) {
-        this.comments.add(comment);
-        comment.setPost(this);
     }
 
     /**

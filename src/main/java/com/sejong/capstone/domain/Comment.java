@@ -55,6 +55,11 @@ public class Comment {
         member.getComments().add(this);
     }
 
+    public void setPost(Post post) {
+        this.post = post;
+        post.getComments().add(this);
+    }
+
     /**
      * 생성 메서드
      */

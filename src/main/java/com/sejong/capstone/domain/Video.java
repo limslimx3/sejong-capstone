@@ -45,10 +45,11 @@ public class Video {
     @JoinColumn(name = "user_id")
     private Member member;
 
-    @OneToMany(mappedBy = "video")
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<VideoTag> videoTags = new ArrayList<>();
 
-    @OneToMany(mappedBy = "video")
+    //CascadeType.ALL옵션을 통해 Video가 삽입,수정,삭제 될시에 SubtitleSentence도 자동으로 같이 작업을 수행하도록 설정
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<SubtitleSentence> subtitleSentences = new ArrayList<>();
 
     /**
