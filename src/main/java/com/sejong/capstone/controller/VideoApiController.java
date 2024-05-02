@@ -16,11 +16,7 @@ public class VideoApiController {
 
     @PostMapping("/api/video")
     public void videoUpload(@ModelAttribute VideoForm videoForm) throws IOException {
-        videoService.saveVideo(1L, videoForm);
-    }
-
-    @PostMapping("/api/json")
-    public Long getJSONFromFastAPI(@RequestBody JsonResponse json) {
-        return videoService.jsonParsing(json);
+        Long videoId = videoService.saveVideo(1L, videoForm);
+        videoService.communicateWithFastAPI(videoId);
     }
 }

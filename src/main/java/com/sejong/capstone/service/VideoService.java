@@ -11,11 +11,11 @@ import com.sejong.capstone.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,17 +49,24 @@ public class VideoService {
 
     /**
      * FastAPI측으로 비디오 Id값 전달후 최종 결과값 담긴 JSON 파일 반환받음
-     * @param json
+     * @param videoId
      * @return videoId
      */
     @Transactional
-    public Long jsonParsing(JsonResponse json) {
-        Long videoId = json.getVideoId();
-        List<SubtitleResponse> subtitleList = json.getSubtitleList();
-
+    public Long communicateWithFastAPI(Long videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow();
 
-        for (SubtitleResponse subtitleResponse : subtitleList) {
+        WebClient webClient = WebClient.builder()
+                .baseUrl("http://localhost:8000")
+                .build();
+
+        JsonResponse jsonResponse = webClient.get()
+                .uri("/api/json/" + videoId)
+                .retrieve()
+                .bodyToMono(JsonResponse.class)
+                .block();
+
+        for (SubtitleResponse subtitleResponse : jsonResponse.getSubtitleList()) {
             SubtitleSentence.createSubtitleSentence(1, subtitleResponse.getStart(), subtitleResponse.getKorText(), subtitleResponse.getEngText(), video);
         }
         return videoId;
