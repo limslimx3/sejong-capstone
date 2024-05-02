@@ -1,6 +1,6 @@
 package com.sejong.capstone.domain.dto;
 
-import com.sejong.capstone.domain.MemberRole;
+import com.sejong.capstone.domain.etc.MemberRole;
 import lombok.Getter;
 
 //React 측으로부터 받은 회원가입 Form Data 전달하기 위한 dto

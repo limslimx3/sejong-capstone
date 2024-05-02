@@ -1,6 +1,4 @@
-package com.sejong.capstone.domain;
-
-import jakarta.persistence.Enumerated;
+package com.sejong.capstone.domain.etc;
 
 /**
  * ADMIN: 관리자

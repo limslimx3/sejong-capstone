@@ -1,6 +1,10 @@
 package com.sejong.capstone.domain;
 
+import com.sejong.capstone.controller.dto.MemberForm;
 import com.sejong.capstone.domain.dto.MemberInfo;
+import com.sejong.capstone.domain.etc.BaseEntity;
+import com.sejong.capstone.domain.etc.MemberRole;
+import com.sejong.capstone.domain.etc.MemberStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,12 +57,12 @@ public class Member extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static Member createMember(MemberInfo memberForm) {
+    public static Member createMember(MemberForm memberForm) {
         Member member = new Member();
         member.setMail(memberForm.getMail());
-        member.setName(member.getName());
-        member.setPassword(member.getPassword());
-        member.setPhoneNum(member.getPhoneNum());
+        member.setName(memberForm.getName());
+        member.setPassword(memberForm.getPassword());
+        member.setPhoneNum(memberForm.getPhoneNum());
         member.setRole(memberForm.getRole());
         member.setStatus(MemberStatus.USING);
 

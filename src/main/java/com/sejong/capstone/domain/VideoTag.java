@@ -1,5 +1,6 @@
 package com.sejong.capstone.domain;
 
+import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,11 +14,19 @@ public class VideoTag extends BaseEntity {
     @Column(name = "tag_id")
     private Long id;
 
+    @Setter
     @Column(name = "tag_name", nullable = false)
     private String name;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;
+
+    /**
+     * 연관관계 편의 메서드
+     */
+    public void setVideo(Video video) {
+        this.video = video;
+        video.getVideoTags().add(this);
+    }
 }

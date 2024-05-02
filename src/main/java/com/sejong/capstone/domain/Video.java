@@ -1,6 +1,6 @@
 package com.sejong.capstone.domain;
 
-import com.sejong.capstone.domain.dto.VideoInfo;
+import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -60,26 +60,23 @@ public class Video extends BaseEntity {
         member.getVideos().add(this);
     }
 
-    public void addTags(VideoTag videoTag) {
-        this.videoTags.add(videoTag);
-        videoTag.setVideo(this);
-    }
-
     /**
      * 생성 메서드
      * 비디오 도메인 생성시에는 사용자 입력 Form Data만으로 생성하도록 한다.
      * 추후 FastAPI 측으로부터 받은 자막 정보 등은 setter메서드를 통해 값을 변경하는 방식으로 JPA의 변경감지를 이용하여 DB에 저장한다
      */
-    public static Video createVideo(Member member, VideoInfo videoInfo) {
+    public static Video createVideo(Member member, String title, String content, String videoPath, String thumbnailPath, List<String> videoTags) {
         Video video = new Video();
-        video.setTitle(videoInfo.getTitle());
-        video.setContent(videoInfo.getContent());
-        video.setPathVideo(videoInfo.getVideoPath());
-        video.setPathPic(videoInfo.getThumbnailPath());
+        video.setTitle(title);
+        video.setContent(content);
+        video.setPathVideo(videoPath);
+        video.setPathPic(thumbnailPath);
         video.setUploadDate(LocalDateTime.now());
 
-        for (VideoTag videoTag : videoInfo.getVideoTags()) {
-            video.addTags(videoTag);
+        for (String tag : videoTags) {
+            VideoTag videoTag = new VideoTag();
+            videoTag.setName(tag);
+            videoTag.setVideo(video);
         }
 
         video.setMember(member);

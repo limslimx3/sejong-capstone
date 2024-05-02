@@ -1,5 +1,6 @@
 package com.sejong.capstone.domain;
 
+import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.List;
 @Table(name = "community_comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
-public class Comment extends BaseEntity{
+public class Comment extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "seq_comment")

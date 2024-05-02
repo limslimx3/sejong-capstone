@@ -1,6 +1,7 @@
 package com.sejong.capstone.domain;
 
 import com.sejong.capstone.domain.dto.PostInfo;
+import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
