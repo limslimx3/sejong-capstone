@@ -1,8 +1,6 @@
 package com.sejong.capstone.service;
 
-import com.sejong.capstone.controller.dto.JsonResponse;
-import com.sejong.capstone.controller.dto.SubtitleResponse;
-import com.sejong.capstone.controller.dto.VideoForm;
+import com.sejong.capstone.controller.dto.*;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.SubtitleSentence;
 import com.sejong.capstone.domain.Video;
@@ -11,16 +9,22 @@ import com.sejong.capstone.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -70,6 +74,36 @@ public class VideoService {
             SubtitleSentence.createSubtitleSentence(1, subtitleResponse.getStart(), subtitleResponse.getKorText(), subtitleResponse.getEngText(), video);
         }
         return videoId;
+    }
+
+    /**
+     * DB에서 Video,Member,VideoTag,SubtitleSentence 패치조인으로 한번에 조회한후 화면에 렌더링하기 위한 VideoInfoResponse 형태로 반환
+     */
+    public VideoInfoResponse getVideoInfos(Long videoId) {
+        Video video = videoRepository.findByIdUsingFetchJoin(videoId);
+        return VideoInfoResponse.builder()
+                .title(video.getTitle())
+                .content(video.getContent())
+                .videoPath(video.getVideoPath())
+                .like(video.getLike())
+                .views(video.getViews())
+                .uploadDate(video.getUploadDate())
+                .providerName(video.getMember().getName())
+                .videoTags(video.getVideoTags().stream()
+                        .map(videoTag -> videoTag.getName())
+                        .collect(Collectors.toList()))
+                .subtitleSentences(video.getSubtitleSentences().stream()
+                        .map(subtitleSentence -> new SubtitleSentenceResponse(subtitleSentence))
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    /**
+     * 특정 경로의 비디오에 접근하여 Resource 형태로 반환
+     */
+    public Resource getVideoFromStorage(String videoPath) throws MalformedURLException {
+        Path path = Paths.get(videoPath);
+        return new UrlResource(path.toUri());
     }
 
     //스토리지에 MultipartFile 업로드

@@ -26,10 +26,10 @@ public class Video extends BaseEntity {
     private String content;
 
     @Column(name = "path_video", nullable = false)
-    private String pathVideo;
+    private String videoPath;
 
     @Column(name = "path_pic")
-    private String pathPic;
+    private String thumbnailPath;
 
     //좋아요
     @Column(name = "likes")
@@ -69,8 +69,8 @@ public class Video extends BaseEntity {
         Video video = new Video();
         video.setTitle(title);
         video.setContent(content);
-        video.setPathVideo(videoPath);
-        video.setPathPic(thumbnailPath);
+        video.setVideoPath(videoPath);
+        video.setThumbnailPath(thumbnailPath);
         video.setUploadDate(LocalDateTime.now());
 
         for (String tag : videoTags) {
