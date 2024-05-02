@@ -1,19 +1,25 @@
 package com.sejong.capstone.service;
 
+import com.sejong.capstone.controller.dto.JsonResponse;
+import com.sejong.capstone.controller.dto.SubtitleResponse;
 import com.sejong.capstone.controller.dto.VideoForm;
 import com.sejong.capstone.domain.Member;
+import com.sejong.capstone.domain.SubtitleSentence;
 import com.sejong.capstone.domain.Video;
 import com.sejong.capstone.repository.MemberRepository;
 import com.sejong.capstone.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -41,14 +47,22 @@ public class VideoService {
         return videoId;
     }
 
-
     /**
      * FastAPI측으로 비디오 Id값 전달후 최종 결과값 담긴 JSON 파일 반환받음
-     * @param videoId
+     * @param json
      * @return videoId
      */
-    public void communicateWithFastApi(Long videoId) {
+    @Transactional
+    public Long jsonParsing(JsonResponse json) {
+        Long videoId = json.getVideoId();
+        List<SubtitleResponse> subtitleList = json.getSubtitleList();
 
+        Video video = videoRepository.findById(videoId).orElseThrow();
+
+        for (SubtitleResponse subtitleResponse : subtitleList) {
+            SubtitleSentence.createSubtitleSentence(1, subtitleResponse.getStart(), subtitleResponse.getKorText(), subtitleResponse.getEngText(), video);
+        }
+        return videoId;
     }
 
     //스토리지에 MultipartFile 업로드

@@ -19,8 +19,8 @@ import java.util.List;
 @Getter @Setter(AccessLevel.PRIVATE)
 public class Member extends BaseEntity {
 
-    @Id @GeneratedValue
-    @Column(name = "user_id")
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private Long id;
 
     @Column(nullable = false)
