@@ -45,9 +45,10 @@ public class VideoService {
      */
     @Transactional
     public Long saveVideo(Long memberId, VideoForm videoForm) throws IOException {
-        String uploadPath = saveInStorage(videoForm.getVideo());
         Member member = memberRepository.findById(memberId).orElseThrow();
-        Long videoId = saveInDb(member, videoForm, uploadPath);
+        Long videoId = saveInDb(member, videoForm);
+        String uploadPath = saveInStorage(videoId, videoForm.getVideo());
+        videoRepository.findById(videoId).orElseThrow().setVideoPath(uploadPath);
         return videoId;
     }
 
@@ -61,7 +62,7 @@ public class VideoService {
         Video video = videoRepository.findById(videoId).orElseThrow();
 
         WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8000")
+                .baseUrl("http://101.235.73.77:8000")
                 .build();
 
         JsonResponse jsonResponse = webClient.get()
@@ -82,6 +83,7 @@ public class VideoService {
     public VideoInfoResponse getVideoInfos(Long videoId) {
         Video video = videoRepository.findByIdUsingFetchJoin(videoId);
         return VideoInfoResponse.builder()
+                .videoId(video.getId())
                 .title(video.getTitle())
                 .content(video.getContent())
                 .videoPath(video.getVideoPath())
@@ -107,24 +109,25 @@ public class VideoService {
     }
 
     //스토리지에 MultipartFile 업로드
-    private String saveInStorage(MultipartFile multipartFile) throws IOException {
+    private String saveInStorage(Long videoId, MultipartFile multipartFile) throws IOException {
         String ext = extractExt(multipartFile);
-        String storageFileName = createStorageFileName(ext);
+        String storageFileName = videoId + "." + ext;
+//        String storageFileName = createStorageFileName(ext);
         multipartFile.transferTo(new File(fileDir + storageFileName));
         return fileDir + storageFileName;
     }
 
     //DB에 비디오 관련 정보 저장(SubtitleSentence는 아직 저장X)
-    private Long saveInDb(Member member, VideoForm videoForm, String uploadPath) {
-        Video video = Video.createVideo(member, videoForm.getTitle(), videoForm.getContent(), uploadPath, uploadPath, videoForm.getVideoTags());
+    private Long saveInDb(Member member, VideoForm videoForm) {
+        Video video = Video.createVideo(member, videoForm.getTitle(), videoForm.getContent(), videoForm.getVideoTags());
         Video savedVideo = videoRepository.save(video);
         return savedVideo.getId();
     }
 
-    private String createStorageFileName(String ext) {
-        String uuid = UUID.randomUUID().toString();
-        return uuid + "." + ext;
-    }
+//    private String createStorageFileName(String ext) {
+//        String uuid = UUID.randomUUID().toString();
+//        return uuid + "." + ext;
+//    }
 
     //확장자명 추출
     private String extractExt(MultipartFile multipartFile) {

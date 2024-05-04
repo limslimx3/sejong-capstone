@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
 
-    @Query("select v from Video v join fetch v.member m join fetch v.videoTags vt join fetch v.subtitleSentences ss where v.id =: videoId")
+    @Query("select v from Video v join fetch v.member m join fetch v.videoTags vt where v.id = :videoId")
     Video findByIdUsingFetchJoin(@Param("videoId") Long videoId);
 }

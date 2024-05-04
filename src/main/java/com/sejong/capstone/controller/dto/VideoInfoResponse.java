@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 public class VideoInfoResponse {
+    private Long videoId;
     private String title;
     private String content;
     private String videoPath;

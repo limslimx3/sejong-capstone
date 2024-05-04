@@ -25,7 +25,8 @@ public class Video extends BaseEntity {
 
     private String content;
 
-    @Column(name = "path_video", nullable = false)
+    @Setter
+    @Column(name = "path_video")
     private String videoPath;
 
     @Column(name = "path_pic")
@@ -65,12 +66,12 @@ public class Video extends BaseEntity {
      * 비디오 도메인 생성시에는 사용자 입력 Form Data만으로 생성하도록 한다.
      * 추후 FastAPI 측으로부터 받은 자막 정보 등은 setter메서드를 통해 값을 변경하는 방식으로 JPA의 변경감지를 이용하여 DB에 저장한다
      */
-    public static Video createVideo(Member member, String title, String content, String videoPath, String thumbnailPath, List<String> videoTags) {
+    public static Video createVideo(Member member, String title, String content, List<String> videoTags) {
         Video video = new Video();
         video.setTitle(title);
         video.setContent(content);
-        video.setVideoPath(videoPath);
-        video.setThumbnailPath(thumbnailPath);
+//        video.setVideoPath(videoPath);
+//        video.setThumbnailPath(thumbnailPath);
         video.setUploadDate(LocalDateTime.now());
 
         for (String tag : videoTags) {
