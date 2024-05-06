@@ -1,7 +1,6 @@
 package com.sejong.capstone.domain;
 
 import com.sejong.capstone.controller.dto.MemberForm;
-import com.sejong.capstone.domain.dto.MemberInfo;
 import com.sejong.capstone.domain.etc.BaseEntity;
 import com.sejong.capstone.domain.etc.MemberRole;
 import com.sejong.capstone.domain.etc.MemberStatus;
@@ -20,8 +19,10 @@ import java.util.List;
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
     private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String memberId;
 
     @Column(nullable = false)
     private String password;
@@ -59,6 +60,7 @@ public class Member extends BaseEntity {
      */
     public static Member createMember(MemberForm memberForm) {
         Member member = new Member();
+        member.setMemberId(memberForm.getMemberId());
         member.setMail(memberForm.getMail());
         member.setName(memberForm.getName());
         member.setPassword(memberForm.getPassword());

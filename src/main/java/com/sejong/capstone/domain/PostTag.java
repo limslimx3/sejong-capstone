@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 public class PostTag extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tag_id")
     private Long id;
 

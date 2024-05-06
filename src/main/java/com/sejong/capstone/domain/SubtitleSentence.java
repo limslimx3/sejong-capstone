@@ -11,11 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "subtitle")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter @Setter(AccessLevel.PRIVATE)
 public class SubtitleSentence extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subtitle_id")
     private Long id;
 

@@ -16,7 +16,7 @@ import java.util.List;
 @Getter @Setter(AccessLevel.PRIVATE)
 public class Comment extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seq_comment")
     private Long id;
 

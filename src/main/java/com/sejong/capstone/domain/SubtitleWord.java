@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter @Setter(AccessLevel.PRIVATE)
 public class SubtitleWord extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "word_id")
     private Long id;
 

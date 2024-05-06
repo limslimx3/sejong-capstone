@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class MemberForm {
+    private String memberId;
     private String mail;
     private String name;
     private String password;
