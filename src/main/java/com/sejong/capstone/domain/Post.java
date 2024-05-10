@@ -74,27 +74,24 @@ public class Post extends BaseEntity {
         member.getPosts().add(this);
     }
 
-    public void addPostTags(PostTag postTag) {
-        this.postTags.add(postTag);
-        postTag.setPost(this);
-    }
-
     /**
      * 생성 메서드
      * 참고로, 커뮤니티글 도메인 최초 생성시에 댓글은 없는 형태이기 때문에 Comment 도메인 관련값은 파라미터로 받지 않았음
      */
-    public static Post createPost(Member member, Video video, List<PostTag> postTags, PostInfo postInfoEtc) {
+    public static Post createPost(Member member, Video video, List<String> postTags, PostInfo postInfoEtc) {
         Post post = new Post();
         post.setMember(member);
         post.setVideo(video);
 
-        for (PostTag postTag : postTags) {
-            post.addPostTags(postTag);
+        for (String tag : postTags) {
+            PostTag postTag = new PostTag();
+            postTag.setName(tag);
+            postTag.setPost(post);
         }
 
         post.setTitle(postInfoEtc.getTitle());
         post.setContent(postInfoEtc.getContent());
-        post.setTimeline(postInfoEtc.getTimeline());
+//        post.setTimeline(postInfoEtc.getTimeline());
 
         return post;
     }

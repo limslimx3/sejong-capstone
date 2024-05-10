@@ -6,6 +6,7 @@ import com.sejong.capstone.controller.dto.VideoInfoResponse;
 import com.sejong.capstone.domain.Video;
 import com.sejong.capstone.repository.VideoRepository;
 import com.sejong.capstone.service.VideoService;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
