@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class SearchResponseDto {
     private List<PostResponseDto> postResponseDtoList;
     private List<VideoResponseDto> videoResponseDtoList;
