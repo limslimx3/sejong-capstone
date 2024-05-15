@@ -3,15 +3,17 @@ package com.sejong.capstone.controller.dto;
 import com.sejong.capstone.domain.Video;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class VideoResponseDto {
+public class VideoResponse {
     private Long videoId;
     private String title;
     private String content;
     private int likes;
     private int views;
 
-    public VideoResponseDto(Video video) {
+    public VideoResponse(Video video) {
         this.videoId = video.getId();
         this.title = video.getTitle();
         this.content = video.getContent();

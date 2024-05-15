@@ -64,7 +64,6 @@ public class Member extends BaseEntity {
         member.setMail(memberForm.getMail());
         member.setName(memberForm.getName());
         member.setPassword(memberForm.getPassword());
-        member.setPhoneNum(memberForm.getPhoneNum());
         member.setRole(memberForm.getRole());
         member.setStatus(MemberStatus.USING);
 

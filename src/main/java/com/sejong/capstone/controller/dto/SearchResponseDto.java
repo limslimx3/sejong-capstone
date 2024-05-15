@@ -1,18 +1,16 @@
 package com.sejong.capstone.controller.dto;
 
-import com.sejong.capstone.domain.Post;
-import com.sejong.capstone.domain.Video;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class SearchResponseDto {
-    private List<PostResponseDto> postResponseDtoList;
-    private List<VideoResponseDto> videoResponseDtoList;
+    private List<PostResponse> postResponseList;
+    private List<VideoResponse> videoResponseList;
 
-    public SearchResponseDto(List<PostResponseDto> postResponseDtoList, List<VideoResponseDto> videoResponseDtoList) {
-        this.postResponseDtoList = postResponseDtoList;
-        this.videoResponseDtoList = videoResponseDtoList;
+    public SearchResponseDto(List<PostResponse> postResponseList, List<VideoResponse> videoResponseList) {
+        this.postResponseList = postResponseList;
+        this.videoResponseList = videoResponseList;
     }
 }

@@ -3,6 +3,7 @@ package com.sejong.capstone.controller;
 import com.sejong.capstone.controller.dto.RecommendVideoResponse;
 import com.sejong.capstone.controller.dto.VideoForm;
 import com.sejong.capstone.controller.dto.VideoInfoResponse;
+import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.Video;
 import com.sejong.capstone.repository.VideoRepository;
 import com.sejong.capstone.service.VideoService;
@@ -31,8 +32,8 @@ public class VideoApiController {
      * 영상 제공자가 비디오 업로드하면 해당 비디오 스토리지,DB에 저장후 FastAPI 측으로 보내 반환받은 JSON DB에 저장까지 처리하는 핸들러
      */
     @PostMapping("/api/video")
-    public Long videoUpload(@ModelAttribute VideoForm videoForm) throws IOException {
-        Long videoId = videoService.saveVideo(1L, videoForm);
+    public Long videoUpload(@SessionAttribute(name = "loginMember") Member loginMember, @ModelAttribute VideoForm videoForm) throws IOException {
+        Long videoId = videoService.saveVideo(loginMember.getId(), videoForm);
         return videoService.communicateWithFastAPI(videoId);
     }
 
