@@ -30,11 +30,17 @@ public class VideoApiController {
 
     /**
      * 영상 제공자가 비디오 업로드하면 해당 비디오 스토리지,DB에 저장후 FastAPI 측으로 보내 반환받은 JSON DB에 저장까지 처리하는 핸들러
+     *  - 전체 작업을 동기-비동기-동기로 쪼개서 처리(JPA와 WebFlux 동시 사용시 충돌문제 해결 위함)
+     *      1.스토리지 및 DB에 비디오 저장(동기)
+     *      2.FastAPI에 요청 및 JSON데이터 응답(비동기)
+     *      3.응답받은 JSON데이터 DB에 저장(동기)
      */
     @PostMapping("/api/video")
     public Long videoUpload(@SessionAttribute(name = "loginMember") Member loginMember, @ModelAttribute VideoForm videoForm) throws IOException {
         Long videoId = videoService.saveVideo(loginMember.getId(), videoForm);
-        return videoService.communicateWithFastAPI(videoId);
+        videoService.communicateWithFastAPI(videoId)
+                .thenAccept(jsonResponse -> videoService.jsonParsing(videoId, jsonResponse));
+        return videoId;
     }
 
     /**
