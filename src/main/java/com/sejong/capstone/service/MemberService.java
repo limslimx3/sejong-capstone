@@ -1,7 +1,6 @@
 package com.sejong.capstone.service;
 
 import com.sejong.capstone.controller.dto.LoginForm;
-import com.sejong.capstone.controller.dto.MemberForm;
 import com.sejong.capstone.controller.dto.SignupForm;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.etc.MemberRole;
@@ -25,15 +24,7 @@ public class MemberService {
     public Long signup(SignupForm signupForm) {
         signupValidation(signupForm);
         String encodedPassword = passwordEncoder.encode(signupForm.getPassword());
-        MemberForm memberForm = MemberForm.builder()
-                .memberId(signupForm.getMemberId())
-                .name(signupForm.getName())
-                .password(encodedPassword)
-                .mail(signupForm.getEmail())
-                .role(MemberRole.PROVIDER)
-                .build();
-
-        Member member = Member.createMember(memberForm);
+        Member member = Member.createMember(signupForm.getMemberId(), encodedPassword, signupForm.getName(), signupForm.getEmail(), MemberRole.valueOf(signupForm.getMemberRole()));
         memberRepository.save(member);
         return member.getId();
     }

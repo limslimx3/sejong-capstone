@@ -21,9 +21,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -55,7 +52,7 @@ public class VideoService {
      * FastAPI측으로 비디오 Id값 전달후 최종 결과값 담긴 JSON 파일 반환받음
      *  - 비동기 처리 위해 CompletableFuture 사용
      */
-    public CompletableFuture<JsonResponse> communicateWithFastAPI(Long videoId) {
+    public CompletableFuture<TotalJsonResult> communicateWithFastAPI(Long videoId) {
         Video video = videoRepository.findById(videoId).orElseThrow();
 
         WebClient webClient = WebClient.builder()
@@ -65,7 +62,7 @@ public class VideoService {
         return webClient.get()
                 .uri("/api/json/" + videoId)
                 .retrieve()
-                .bodyToMono(JsonResponse.class)
+                .bodyToMono(TotalJsonResult.class)
                 .toFuture();
     }
 
@@ -73,19 +70,19 @@ public class VideoService {
      * 인공지능 모델 서빙 결과값 담긴 JSON 반환받아 파싱후 DB에 저장
      */
     @Transactional
-    public void jsonParsing(Long videoId, JsonResponse jsonResponse) {
+    public void jsonParsing(Long videoId, TotalJsonResult totalJsonResult) {
         Video video = videoRepository.findById(videoId).orElseThrow();
-        for (SubtitleResponse subtitleResponse : jsonResponse.getSubtitleList()) {
-            SubtitleSentence.createSubtitleSentence(1, subtitleResponse.getStart(), subtitleResponse.getKorText(), subtitleResponse.getEngText(), video);
+        for (SubtitleJsonResult subtitleJsonResult : totalJsonResult.getSubtitleList()) {
+            SubtitleSentence.createSubtitleSentence(1, subtitleJsonResult.getStart(), subtitleJsonResult.getKorText(), subtitleJsonResult.getEngText(), video);
         }
     }
 
     /**
      * DB에서 Video,Member,VideoTag,SubtitleSentence 패치조인으로 한번에 조회한후 화면에 렌더링하기 위한 VideoInfoResponse 형태로 반환
      */
-    public VideoInfoResponse getVideoInfos(Long videoId) {
+    public VideoResponse getVideoInfos(Long videoId) {
         Video video = videoRepository.findByIdUsingFetchJoin(videoId);
-        return VideoInfoResponse.builder()
+        return VideoResponse.builder()
                 .videoId(video.getId())
                 .title(video.getTitle())
                 .content(video.getContent())

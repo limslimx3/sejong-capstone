@@ -1,7 +1,6 @@
 package com.sejong.capstone.controller;
 
 import com.sejong.capstone.controller.dto.LoginForm;
-import com.sejong.capstone.controller.dto.MemberForm;
 import com.sejong.capstone.controller.dto.SignupForm;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.repository.MemberRepository;

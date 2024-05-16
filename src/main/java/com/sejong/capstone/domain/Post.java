@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,5 +95,24 @@ public class Post extends BaseEntity {
 //        post.setTimeline(postInfoEtc.getTimeline());
 
         return post;
+    }
+
+    /**
+     * 수정 메서드
+     */
+    @Transactional
+    public void updatePost(Post post, String title, String content, List<PostTag> currentTags, List<String> newTags) {
+        setTitle(title);
+        setContent(content);
+
+        currentTags.removeIf(tag -> !newTags.contains(tag.getName()));
+        newTags.forEach(tagName -> {
+            if (currentTags.stream().noneMatch(t -> t.getName().equals(tagName))) {
+                PostTag newTag = new PostTag();
+                newTag.setName(tagName);
+                currentTags.add(newTag);
+                newTag.setPost(post);
+            }
+        });
     }
 }
