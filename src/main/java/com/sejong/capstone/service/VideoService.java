@@ -3,6 +3,7 @@ package com.sejong.capstone.service;
 import com.sejong.capstone.controller.dto.*;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.SubtitleSentence;
+import com.sejong.capstone.domain.SubtitleWord;
 import com.sejong.capstone.domain.Video;
 import com.sejong.capstone.repository.MemberRepository;
 import com.sejong.capstone.repository.VideoRepository;
@@ -35,6 +36,7 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final MemberRepository memberRepository;
+    private final WebClient webClient;
 
     /**
      * 스토리지 및 DB에 비디오 관련 데이터 저장
@@ -53,12 +55,6 @@ public class VideoService {
      *  - 비동기 처리 위해 CompletableFuture 사용
      */
     public CompletableFuture<TotalJsonResult> communicateWithFastAPI(Long videoId) {
-        Video video = videoRepository.findById(videoId).orElseThrow();
-
-        WebClient webClient = WebClient.builder()
-                .baseUrl("http://101.235.73.77:8000")
-                .build();
-
         return webClient.get()
                 .uri("/api/json/" + videoId)
                 .retrieve()
@@ -73,7 +69,11 @@ public class VideoService {
     public void jsonParsing(Long videoId, TotalJsonResult totalJsonResult) {
         Video video = videoRepository.findById(videoId).orElseThrow();
         for (SubtitleJsonResult subtitleJsonResult : totalJsonResult.getSubtitleList()) {
-            SubtitleSentence.createSubtitleSentence(1, subtitleJsonResult.getStart(), subtitleJsonResult.getKorText(), subtitleJsonResult.getEngText(), video);
+            int idx = 0;
+            SubtitleSentence subtitleSentence = SubtitleSentence.createSubtitleSentence(1, subtitleJsonResult.getStart(), subtitleJsonResult.getKorText(), subtitleJsonResult.getEngText(), video);
+            for (String korWord : subtitleJsonResult.getKorWordText()) {
+                SubtitleWord.createSubtitleWord(++idx, korWord, subtitleSentence);
+            }
         }
     }
 
