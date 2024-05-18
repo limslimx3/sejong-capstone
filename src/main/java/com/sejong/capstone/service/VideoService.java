@@ -38,15 +38,10 @@ public class VideoService {
     private final MemberRepository memberRepository;
     private final WebClient webClient;
 
-    /**
-     * 스토리지 및 DB에 비디오 관련 데이터 저장
-     */
     @Transactional
     public Long saveVideo(Long memberId, VideoForm videoForm) throws IOException {
         Member member = memberRepository.findById(memberId).orElseThrow();
         Long videoId = saveInDb(member, videoForm);
-        String uploadPath = saveInStorage(videoId, videoForm.getVideo());
-        videoRepository.findById(videoId).orElseThrow().setVideoPath(uploadPath);
         return videoId;
     }
 
@@ -54,7 +49,8 @@ public class VideoService {
      * FastAPI측으로 비디오 Id값 전달후 최종 결과값 담긴 JSON 파일 반환받음
      *  - 비동기 처리 위해 CompletableFuture 사용
      */
-    public CompletableFuture<TotalJsonResult> communicateWithFastAPI(Long videoId) {
+    public CompletableFuture<TotalJsonResult> communicateWithFastAPIAsync(Long videoId, VideoForm videoForm) throws IOException {
+        saveInStorage(videoId, videoForm.getVideo());
         return webClient.get()
                 .uri("/api/json/" + videoId)
                 .retrieve()
@@ -109,12 +105,11 @@ public class VideoService {
     }
 
     //스토리지에 MultipartFile 업로드
-    private String saveInStorage(Long videoId, MultipartFile multipartFile) throws IOException {
+    private void saveInStorage(Long videoId, MultipartFile multipartFile) throws IOException {
         String ext = extractExt(multipartFile);
         String storageFileName = videoId + "." + ext;
 //        String storageFileName = createStorageFileName(ext);
         multipartFile.transferTo(new File(fileDir + storageFileName));
-        return fileDir + storageFileName;
     }
 
     //DB에 비디오 관련 정보 저장(SubtitleSentence는 아직 저장X)

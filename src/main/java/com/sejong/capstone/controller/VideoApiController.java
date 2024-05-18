@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class VideoApiController {
     @PostMapping("/api/video")
     public Long videoUpload(@SessionAttribute(name = "loginMember") Member loginMember, @ModelAttribute VideoForm videoForm) throws IOException {
         Long videoId = videoService.saveVideo(loginMember.getId(), videoForm);
-        videoService.communicateWithFastAPI(videoId)
+        videoService.communicateWithFastAPIAsync(videoId, videoForm)
                 .thenAccept(jsonResponse -> videoService.jsonParsing(videoId, jsonResponse));
         return videoId;
     }

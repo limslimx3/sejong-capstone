@@ -33,6 +33,6 @@ public class MemberApiController {
 
         HttpSession session = request.getSession();
         session.setAttribute("loginMember", loginMember);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(loginMember.getId());
     }
 }

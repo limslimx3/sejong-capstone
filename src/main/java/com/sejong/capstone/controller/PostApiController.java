@@ -7,7 +7,6 @@ import com.sejong.capstone.controller.dto.PostUpdateRequest;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.Post;
 import com.sejong.capstone.domain.Video;
-import com.sejong.capstone.domain.dto.PostInfo;
 import com.sejong.capstone.repository.MemberRepository;
 import com.sejong.capstone.repository.PostRepository;
 import com.sejong.capstone.repository.VideoRepository;
@@ -38,7 +37,7 @@ public class PostApiController {
             video = videoRepository.findById(postSaveRequest.getVideoId()).orElseThrow();
         }
 
-        Post post = Post.createPost(member, video, postSaveRequest.getTags(), new PostInfo(postSaveRequest.getTitle(), postSaveRequest.getContent()));
+        Post post = Post.createPost(member, video, postSaveRequest.getTitle(), postSaveRequest.getContent(), postSaveRequest.getTags());
         Post savedPost = postRepository.save(post);
         return savedPost.getId();
     }

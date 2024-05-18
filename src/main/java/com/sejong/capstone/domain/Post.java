@@ -1,6 +1,5 @@
 package com.sejong.capstone.domain;
 
-import com.sejong.capstone.domain.dto.PostInfo;
 import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -79,7 +78,7 @@ public class Post extends BaseEntity {
      * 생성 메서드
      * 참고로, 커뮤니티글 도메인 최초 생성시에 댓글은 없는 형태이기 때문에 Comment 도메인 관련값은 파라미터로 받지 않았음
      */
-    public static Post createPost(Member member, Video video, List<String> postTags, PostInfo postInfoEtc) {
+    public static Post createPost(Member member, Video video, String title, String content, List<String> postTags) {
         Post post = new Post();
         post.setMember(member);
         post.setVideo(video);
@@ -90,9 +89,8 @@ public class Post extends BaseEntity {
             postTag.setPost(post);
         }
 
-        post.setTitle(postInfoEtc.getTitle());
-        post.setContent(postInfoEtc.getContent());
-//        post.setTimeline(postInfoEtc.getTimeline());
+        post.setTitle(title);
+        post.setContent(content);
 
         return post;
     }
