@@ -14,7 +14,7 @@ import lombok.Setter;
 public class SubtitleWord extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "word_id")
+    @Column(name = "subtitle_word_id")
     private Long id;
 
     @Column(nullable = false)
