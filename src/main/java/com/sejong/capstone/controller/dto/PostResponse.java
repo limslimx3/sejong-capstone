@@ -5,8 +5,8 @@ import com.sejong.capstone.domain.PostTag;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 커뮤니티 글 조회 응답 데이터 담기 위한 DTO
@@ -16,23 +16,29 @@ import java.util.List;
 @Data
 public class PostResponse {
     private Long postId;
-    private String title;
-    private String content;
-    private List<String> postTags = new ArrayList<>();
-    private int likes;
-    private int dislikes;
+    private String postTitle;
+    private String postContent;
+    private String postWriter;
+    private List<String> postTags;
+    private List<CommentResponse> comments;
+    private int postLike;
+    private int postDislike;
 
     public PostResponse(Post post) {
         this.postId = post.getId();
-        this.title = post.getTitle();
-        this.content = post.getContent();
+        this.postTitle = post.getTitle();
+        this.postContent = post.getContent();
+        this.postWriter = post.getMember().getName();
 
-        List<PostTag> postTagsList = post.getPostTags();
-        for (PostTag postTag : postTagsList) {
-            log.info("postTag name = {}", postTag.getName());
-        }
-        post.getPostTags().forEach(postTag -> postTags.add(postTag.getName()));
-        this.likes = post.getLike();
-        this.dislikes = post.getDislike();
+        this.postTags = post.getPostTags().stream()
+                .map(PostTag::getName)
+                .collect(Collectors.toList());
+
+        this.comments = post.getComments().stream()
+                .map(CommentResponse::new)
+                .collect(Collectors.toList());
+
+        this.postLike = post.getLike();
+        this.postDislike = post.getDislike();
     }
 }

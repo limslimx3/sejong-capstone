@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 public class PostApiController {
 
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
     private final VideoRepository videoRepository;
 
     /**
@@ -29,7 +28,6 @@ public class PostApiController {
      */
     @PostMapping("/api/post")
     public Long savePost(@SessionAttribute(name = "loginMember") Member loginMember, @RequestBody PostSaveRequest postSaveRequest) {
-        Member member = memberRepository.findById(loginMember.getId()).orElseThrow();
         Video video = null;
 
         //일반 게시글 작성(비디오url 없이)
@@ -37,7 +35,7 @@ public class PostApiController {
             video = videoRepository.findById(postSaveRequest.getVideoId()).orElseThrow();
         }
 
-        Post post = Post.createPost(member, video, postSaveRequest.getTitle(), postSaveRequest.getContent(), postSaveRequest.getTags());
+        Post post = Post.createPost(loginMember, video, postSaveRequest.getTitle(), postSaveRequest.getContent(), postSaveRequest.getTags());
         Post savedPost = postRepository.save(post);
         return savedPost.getId();
     }
@@ -58,7 +56,7 @@ public class PostApiController {
      */
     @GetMapping("/api/post/{id}")
     public PostResponse postDetail(@PathVariable("id") Long postId) {
-        Post post = postRepository.findById(postId).orElseThrow();
+        Post post = postRepository.findPostMemberCommentsPostTagsById(postId).orElseThrow();
         return new PostResponse(post);
     }
 
