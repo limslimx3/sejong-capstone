@@ -11,5 +11,5 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class PostListResponse {
-    private List<PostResponse> postResponseList;
+    private List<PostSimpleResponse> postSimpleResponses;
 }

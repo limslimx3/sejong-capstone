@@ -1,5 +1,6 @@
 package com.sejong.capstone.controller.dto;
 
+import com.sejong.capstone.domain.Comment;
 import com.sejong.capstone.domain.Post;
 import com.sejong.capstone.domain.PostTag;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 커뮤니티 글 조회 응답 데이터 담기 위한 DTO
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Data
-public class PostResponse {
+public class PostDetailResponse {
     private Long postId;
     private String postTitle;
     private String postContent;
@@ -22,9 +24,8 @@ public class PostResponse {
     private List<String> postTags;
     private List<CommentResponse> comments;
     private int postLike;
-    private int postDislike;
 
-    public PostResponse(Post post) {
+    public PostDetailResponse(Post post) {
         this.postId = post.getId();
         this.postTitle = post.getTitle();
         this.postContent = post.getContent();
@@ -39,6 +40,5 @@ public class PostResponse {
                 .collect(Collectors.toList());
 
         this.postLike = post.getLike();
-        this.postDislike = post.getDislike();
     }
 }

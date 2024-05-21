@@ -24,6 +24,7 @@ public class Post extends BaseEntity {
     @Setter(AccessLevel.PRIVATE)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     //특정 영상의 특정 시간대에 해당하는 이미지를 작성글 이미지로 사용하기 위해 필요한 속성
@@ -49,7 +50,6 @@ public class Post extends BaseEntity {
      * 현재로써는 비디오 도메인 측에서는 커뮤니티글 도메인에 대한 값을 따로 가지고 있을 필요가 없고 커뮤니티글 도메인 측에서만 비디오 도메인 값을 가지고 있으면
      * 되기 때문에 Post 도메인 측에만 @Setter메서드를 달아줌
      */
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;
@@ -74,6 +74,11 @@ public class Post extends BaseEntity {
         member.getPosts().add(this);
     }
 
+    public void setVideo(Video video) {
+        this.video = video;
+        video.getPosts().add(this);
+    }
+
     /**
      * 생성 메서드
      * 참고로, 커뮤니티글 도메인 최초 생성시에 댓글은 없는 형태이기 때문에 Comment 도메인 관련값은 파라미터로 받지 않았음
@@ -81,7 +86,10 @@ public class Post extends BaseEntity {
     public static Post createPost(Member member, Video video, String title, String content, List<String> postTags) {
         Post post = new Post();
         post.setMember(member);
-        post.setVideo(video);
+
+        if (video != null) {
+            post.setVideo(video);
+        }
 
         for (String tag : postTags) {
             PostTag postTag = new PostTag();

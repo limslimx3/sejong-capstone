@@ -9,11 +9,11 @@ import java.util.List;
  */
 @Data
 public class TotalSearchResponse {
-    private List<PostResponse> postResponseList;
+    private List<PostDetailResponse> postDetailResponseList;
     private List<VideoSearchResponse> videoSearchResponseList;
 
-    public TotalSearchResponse(List<PostResponse> postResponseList, List<VideoSearchResponse> videoSearchResponseList) {
-        this.postResponseList = postResponseList;
+    public TotalSearchResponse(List<PostDetailResponse> postDetailResponseList, List<VideoSearchResponse> videoSearchResponseList) {
+        this.postDetailResponseList = postDetailResponseList;
         this.videoSearchResponseList = videoSearchResponseList;
     }
 }

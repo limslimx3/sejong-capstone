@@ -15,7 +15,7 @@ public class CommentApiController {
 
     @PostMapping("/api/comments")
     public ResponseEntity saveComment(@SessionAttribute("loginMember") Member loginMember, @RequestBody CommentSaveRequest request) {
-        Long commentId = commentService.saveComment(loginMember, request);
+        Long commentId = commentService.saveComment(loginMember.getId(), request);
         return ResponseEntity.ok(commentId);
     }
 }

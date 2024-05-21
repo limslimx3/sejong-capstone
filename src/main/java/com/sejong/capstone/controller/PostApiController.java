@@ -1,9 +1,6 @@
 package com.sejong.capstone.controller;
 
-import com.sejong.capstone.controller.dto.PostListResponse;
-import com.sejong.capstone.controller.dto.PostSaveRequest;
-import com.sejong.capstone.controller.dto.PostResponse;
-import com.sejong.capstone.controller.dto.PostUpdateRequest;
+import com.sejong.capstone.controller.dto.*;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.Post;
 import com.sejong.capstone.domain.Video;
@@ -11,9 +8,11 @@ import com.sejong.capstone.repository.MemberRepository;
 import com.sejong.capstone.repository.PostRepository;
 import com.sejong.capstone.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -22,20 +21,19 @@ public class PostApiController {
 
     private final PostRepository postRepository;
     private final VideoRepository videoRepository;
+    private final MemberRepository memberRepository;
 
     /**
      * 커뮤니티 글 저장
      */
     @PostMapping("/api/post")
     public Long savePost(@SessionAttribute(name = "loginMember") Member loginMember, @RequestBody PostSaveRequest postSaveRequest) {
-        Video video = null;
+        Optional<Video> video = Optional.ofNullable(postSaveRequest.getVideoId())
+                .map(id -> videoRepository.findById(id))
+                .orElse(Optional.empty());
 
-        //일반 게시글 작성(비디오url 없이)
-        if (postSaveRequest.getVideoId() != null) {
-            video = videoRepository.findById(postSaveRequest.getVideoId()).orElseThrow();
-        }
-
-        Post post = Post.createPost(loginMember, video, postSaveRequest.getTitle(), postSaveRequest.getContent(), postSaveRequest.getTags());
+        Member member = memberRepository.findById(loginMember.getId()).orElseThrow();
+        Post post = Post.createPost(member, video.orElse(null), postSaveRequest.getTitle(), postSaveRequest.getContent(), postSaveRequest.getTags());
         Post savedPost = postRepository.save(post);
         return savedPost.getId();
     }
@@ -45,8 +43,8 @@ public class PostApiController {
      */
     @GetMapping("/api/post")
     public PostListResponse postList() {
-        List<PostResponse> resultList = postRepository.findAll().stream()
-                .map(post -> new PostResponse(post))
+        List<PostSimpleResponse> resultList = postRepository.findAll().stream()
+                .map(post -> new PostSimpleResponse(post))
                 .collect(Collectors.toList());
         return new PostListResponse(resultList);
     }
@@ -55,9 +53,9 @@ public class PostApiController {
      * 커뮤니티 글 상세 조회
      */
     @GetMapping("/api/post/{id}")
-    public PostResponse postDetail(@PathVariable("id") Long postId) {
+    public PostDetailResponse postDetail(@PathVariable("id") Long postId) {
         Post post = postRepository.findPostMemberCommentsPostTagsById(postId).orElseThrow();
-        return new PostResponse(post);
+        return new PostDetailResponse(post);
     }
 
     @PutMapping("/api/post/{id}")

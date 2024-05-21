@@ -18,7 +18,6 @@ public class PostTag extends BaseEntity {
     @Column(name = "tag_name", nullable = false)
     private String name;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;

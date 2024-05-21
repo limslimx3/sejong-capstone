@@ -1,6 +1,6 @@
 package com.sejong.capstone.controller;
 
-import com.sejong.capstone.controller.dto.PostResponse;
+import com.sejong.capstone.controller.dto.PostDetailResponse;
 import com.sejong.capstone.controller.dto.TotalSearchResponse;
 import com.sejong.capstone.controller.dto.VideoSearchResponse;
 import com.sejong.capstone.repository.PostRepository;
@@ -25,14 +25,14 @@ public class SearchApiController {
 
     @GetMapping("/api/search")
     public TotalSearchResponse searchVideoAndPost(@RequestParam("query") String keyword) {
-        List<PostResponse> postResponseList = postRepository.findAllPostByKeyword(keyword).stream()
-                .map(post -> new PostResponse(post))
+        List<PostDetailResponse> postDetailResponseList = postRepository.findAllPostByKeyword(keyword).stream()
+                .map(post -> new PostDetailResponse(post))
                 .collect(Collectors.toList());
 
         List<VideoSearchResponse> videoSearchResponseList = videoRepository.findAllVideoByKeyword(keyword).stream()
                 .map(video -> new VideoSearchResponse(video))
                 .collect(Collectors.toList());
 
-        return new TotalSearchResponse(postResponseList, videoSearchResponseList);
+        return new TotalSearchResponse(postDetailResponseList, videoSearchResponseList);
     }
 }

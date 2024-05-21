@@ -20,6 +20,7 @@ public class Comment extends BaseEntity {
     @Column(name = "seq_comment")
     private Long id;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     //좋아요
@@ -34,7 +35,6 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private Member member;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
