@@ -31,7 +31,6 @@ public class SubtitleSentence extends BaseEntity {
     @Column(name = "subtitle_eng")
     private String engSubtitle;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "video_id")
     private Video video;

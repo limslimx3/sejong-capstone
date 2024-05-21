@@ -23,9 +23,9 @@ public class Video extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Setter
     @Column(name = "path_video")
     private String videoPath;
 
@@ -52,6 +52,12 @@ public class Video extends BaseEntity {
     //CascadeType.ALL옵션을 통해 Video가 삽입,수정,삭제 될시에 SubtitleSentence도 자동으로 같이 작업을 수행하도록 설정
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<SubtitleSentence> subtitleSentences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video")
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
+    private List<VideoLike> videoLikes = new ArrayList<>();
 
     /**
      * 연관관계 편의 메서드
@@ -83,5 +89,17 @@ public class Video extends BaseEntity {
         video.setMember(member);
 
         return video;
+    }
+
+    public void likeVideo() {
+        this.like++;
+    }
+
+    public void dislikeVideo() {
+        this.like--;
+    }
+
+    public void addViews() {
+        this.views++;
     }
 }

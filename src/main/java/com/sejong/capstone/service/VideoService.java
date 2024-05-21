@@ -1,17 +1,14 @@
 package com.sejong.capstone.service;
 
 import com.sejong.capstone.controller.dto.*;
-import com.sejong.capstone.domain.Member;
-import com.sejong.capstone.domain.SubtitleSentence;
-import com.sejong.capstone.domain.SubtitleWord;
-import com.sejong.capstone.domain.Video;
+import com.sejong.capstone.domain.*;
 import com.sejong.capstone.repository.MemberRepository;
+import com.sejong.capstone.repository.VideoLikeRepository;
 import com.sejong.capstone.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -36,6 +31,8 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final MemberRepository memberRepository;
+    private final VideoLikeRepository videoLikeRepository;
+
     private final WebClient webClient;
 
     @Transactional
@@ -74,35 +71,49 @@ public class VideoService {
     }
 
     /**
-     * DB에서 Video,Member,VideoTag,SubtitleSentence 패치조인으로 한번에 조회한후 화면에 렌더링하기 위한 VideoInfoResponse 형태로 반환
+     * DB에서 Video,Member,VideoTag,SubtitleSentence,SubtitleWord,Post 패치조인으로 한번에 조회한후 화면에 렌더링하기 위한 VideoInfoResponse 형태로 반환
      */
-    public VideoResponse getVideoInfos(Long videoId) {
+    public VideoResponse getVideoInfos(Long videoId, Long memberId) {
         Video video = videoRepository.findByIdUsingFetchJoin(videoId);
-        return VideoResponse.builder()
-                .videoId(video.getId())
-                .title(video.getTitle())
-                .content(video.getContent())
-                .videoPath(video.getVideoPath())
-                .like(video.getLike())
-                .views(video.getViews())
-                .uploadDate(video.getUploadDate())
-                .providerName(video.getMember().getName())
-                .videoTags(video.getVideoTags().stream()
-                        .map(videoTag -> videoTag.getName())
-                        .collect(Collectors.toList()))
-                .subtitleSentences(video.getSubtitleSentences().stream()
-                        .map(subtitleSentence -> new SubtitleSentenceResponse(subtitleSentence))
-                        .collect(Collectors.toList()))
-                .build();
+        return new VideoResponse(video, memberId);
     }
 
     /**
-     * 특정 경로의 비디오에 접근하여 Resource 형태로 반환
+     * 비디오 좋아요 처리
      */
-    public Resource getVideoFromStorage(String videoPath) throws MalformedURLException {
-        Path path = Paths.get(videoPath);
-        return new UrlResource(path.toUri());
+    @Transactional
+    public int setLikeVideo(Member loginMember, Long videoId) {
+        Video video = videoRepository.findById(videoId).orElseThrow();
+        VideoLike before = video.getVideoLikes().stream()
+                .filter(videoLike -> videoLike.getMember().getId().equals(loginMember.getId()))
+                .findFirst()
+                .orElse(null);
+        if(before == null) { //사용자가 해당 비디오에 대해 좋아요를 누른적이 없는 경우
+            video.likeVideo();
+            VideoLike.createVideoLike(video, loginMember);
+        } else {    //사용자가 해당 비디오에 대해 좋아요를 누른적이 있는 경우
+            video.dislikeVideo();
+            videoLikeRepository.delete(before);
+        }
+        return video.getLike();
     }
+
+    /**
+     * 비디오 조회수 증가 처리
+     */
+    @Transactional
+    public void addViews(Long videoId) {
+        Video video = videoRepository.findById(videoId).orElseThrow();
+        video.addViews();
+    }
+
+//    /**
+//     * 특정 경로의 비디오에 접근하여 Resource 형태로 반환
+//     */
+//    public Resource getVideoFromStorage(String videoPath) throws MalformedURLException {
+//        Path path = Paths.get(videoPath);
+//        return new UrlResource(path.toUri());
+//    }
 
     //스토리지에 MultipartFile 업로드
     private void saveInStorage(Long videoId, MultipartFile multipartFile) throws IOException {
