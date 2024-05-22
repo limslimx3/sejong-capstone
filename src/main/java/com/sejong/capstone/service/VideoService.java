@@ -33,7 +33,7 @@ public class VideoService {
     private final MemberRepository memberRepository;
     private final VideoLikeRepository videoLikeRepository;
 
-    private final WebClient webClient;
+    private final WebClient webClientForFastAPI;
 
     @Transactional
     public Long saveVideo(Long memberId, VideoForm videoForm) throws IOException {
@@ -48,7 +48,7 @@ public class VideoService {
      */
     public CompletableFuture<TotalJsonResult> communicateWithFastAPIAsync(Long videoId, VideoForm videoForm) throws IOException {
         saveInStorage(videoId, videoForm.getVideo());
-        return webClient.get()
+        return webClientForFastAPI.get()
                 .uri("/api/json/" + videoId)
                 .retrieve()
                 .bodyToMono(TotalJsonResult.class)

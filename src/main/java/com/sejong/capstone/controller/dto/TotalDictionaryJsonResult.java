@@ -10,7 +10,7 @@ import java.util.List;
  */
 @AllArgsConstructor
 @Data
-public class TotalCrawlingJsonResult {
+public class TotalDictionaryJsonResult {
     private String word;
     private List<MeaningCrawlingJsonResult> engMeanings;
 }
