@@ -1,8 +1,7 @@
 package com.sejong.capstone.repository;
 
-import com.sejong.capstone.domain.Post;
 import com.sejong.capstone.domain.Video;
-import org.springframework.data.jpa.repository.EntityGraph;
+import com.sejong.capstone.domain.VideoTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,8 +14,11 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     Video findByIdUsingFetchJoin(@Param("videoId") Long videoId);
 
     @Query("select v from Video v order by v.uploadDate desc")
-    List<Video> findAllForRecommend();
+    List<Video> findAllOrderByUploadDateDesc();
 
     @Query("SELECT v FROM Video v WHERE v.title LIKE %:keyword% OR v.content LIKE %:keyword%")
     List<Video> findAllVideoByKeyword(@Param("keyword") String keyword);
+
+    @Query("select v from Video v join fetch v.videoTags vt where vt.name =:tagName")
+    List<Video> findAllByTagName(@Param("tagName") String tagName);
 }
