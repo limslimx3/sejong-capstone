@@ -42,22 +42,25 @@ public class PostApiController {
      * 커뮤니티 글 목록 조회
      */
     @GetMapping("/api/post")
-    public PostListResponse postList() {
-        List<PostSimpleResponse> resultList = postRepository.findAll().stream()
+    public ResponseEntity postList() {
+        List<PostSimpleResponse> resultList = postRepository.findAllPostMemberVideo().stream()
                 .map(post -> new PostSimpleResponse(post))
                 .collect(Collectors.toList());
-        return new PostListResponse(resultList);
+        return ResponseEntity.ok(new PostListResponse(resultList));
     }
 
     /**
      * 커뮤니티 글 상세 조회
      */
     @GetMapping("/api/post/{id}")
-    public PostDetailResponse postDetail(@PathVariable("id") Long postId) {
+    public ResponseEntity postDetail(@PathVariable("id") Long postId) {
         Post post = postRepository.findPostMemberCommentsPostTagsById(postId).orElseThrow();
-        return new PostDetailResponse(post);
+        return ResponseEntity.ok(new PostDetailResponse(post));
     }
 
+    /**
+     * 커뮤니티 글 수정
+     */
     @PutMapping("/api/post/{id}")
     public Long postUpdate(@PathVariable("id") Long postId, @RequestBody PostUpdateRequest postUpdateRequest) {
         Post post = postRepository.findById(postId).orElseThrow();
@@ -65,6 +68,9 @@ public class PostApiController {
         return post.getId();
     }
 
+    /**
+     * 커뮤니티 글 삭제
+     */
     @DeleteMapping("/api/post/{id}")
     public void postDelete(@PathVariable("id") Long postId, @SessionAttribute("loginMember") Member loginMember) {
         if(loginMember == null) {

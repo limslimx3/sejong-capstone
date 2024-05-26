@@ -72,13 +72,17 @@ public class VideoApiController {
      */
     @GetMapping("/api/video/recommend")
     public List<RecommendVideoResponse> getVideoListForRecommend(@RequestParam("tag") String tag) {
-        List<Video> allForRecommend = videoRepository.findAllOrderByUploadDateDesc();
+        List<Video> allForRecommend = videoRepository.findAllOrderByUploadDateDesc().stream()
+                .filter(video -> !(video.getSubtitleSentences().isEmpty()))
+                .collect(Collectors.toList());
         if (tag.equals("all")) {
             return allForRecommend.stream()
                     .map(video -> new RecommendVideoResponse(video))
                     .collect(Collectors.toList());
         } else {
-            return videoRepository.findAllByTagName("#" + tag).stream()
+            return allForRecommend.stream()
+                    .filter(video -> video.getVideoTags().stream()
+                            .anyMatch(videoTag -> videoTag.getName().equals("#" + tag)))
                     .map(video -> new RecommendVideoResponse(video))
                     .collect(Collectors.toList());
         }

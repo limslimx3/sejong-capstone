@@ -18,7 +18,4 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     @Query("SELECT v FROM Video v WHERE v.title LIKE %:keyword% OR v.content LIKE %:keyword%")
     List<Video> findAllVideoByKeyword(@Param("keyword") String keyword);
-
-    @Query("select v from Video v join fetch v.videoTags vt where vt.name =:tagName")
-    List<Video> findAllByTagName(@Param("tagName") String tagName);
 }

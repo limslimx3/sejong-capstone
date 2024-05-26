@@ -12,18 +12,22 @@ import java.util.stream.Collectors;
 @Data
 public class PostSimpleResponse {
     private Long postId;
+    private String postWriter;
     private String title;
     private String content;
     private int like;
     private List<String> postTags;
+    private Long videoId;
 
     public PostSimpleResponse(Post post) {
         this.postId = post.getId();
+        this.postWriter = post.getMember().getMemberId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.like = post.getLike();
         this.postTags = post.getPostTags().stream()
                 .map(postTag -> postTag.getName())
                 .collect(Collectors.toList());
+        this.videoId = post.getVideo().getId();
     }
 }

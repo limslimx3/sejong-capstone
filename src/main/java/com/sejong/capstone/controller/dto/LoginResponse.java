@@ -1,6 +1,7 @@
 package com.sejong.capstone.controller.dto;
 
 import com.sejong.capstone.domain.Member;
+import com.sejong.capstone.domain.etc.MemberRole;
 import lombok.Data;
 
 /**
@@ -9,10 +10,16 @@ import lombok.Data;
 @Data
 public class LoginResponse {
     private Long id;
+    private String memberId;
     private String name;
+    private String email;
+    private MemberRole role;
 
     public LoginResponse(Member member) {
         this.id = member.getId();
+        this.memberId = member.getMemberId();
         this.name = member.getName();
+        this.email = member.getMail();
+        this.role = member.getRole();
     }
 }

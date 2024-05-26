@@ -29,7 +29,7 @@ public class PostDetailResponse {
         this.postId = post.getId();
         this.postTitle = post.getTitle();
         this.postContent = post.getContent();
-        this.postWriter = post.getMember().getName();
+        this.postWriter = post.getMember().getMemberId();
 
         this.postTags = post.getPostTags().stream()
                 .map(PostTag::getName)
