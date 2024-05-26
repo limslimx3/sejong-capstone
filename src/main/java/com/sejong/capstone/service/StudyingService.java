@@ -81,6 +81,10 @@ public class StudyingService {
 //                .block();
 //    }
 
+    /**
+     * 1차로 Papago API 이용하여 한국어 단어 -> 영어 단어로 번역
+     * 2차로 Dictionary API 이용하여 띄어쓰기 없는 영어 단어 대상으로 상세한 사전 뜻 반환
+     */
     @Transactional
     public DictionaryResponse getEngMeanings(Long subtitleWordId) throws JsonProcessingException {
         TotalDictionaryJsonResult totalDictionaryJsonResult = null;
@@ -102,14 +106,13 @@ public class StudyingService {
         String text = papagoJson.path("message").path("result").path("translatedText").asText();
         if (StringUtils.containsWhitespace(text)) {  //공백이 포함되서 그대로 보여줄 경우
             log.info("text with blank: {}", text);
-            /**
-             * TODO DB word 테이블에 저장후 React측으로 반환할 JSON 형식을 정의하여 반환
-             */
-            List list = new ArrayList<>();
+
+            List<MeaningCrawlingJsonResult> list = new ArrayList<>();
             list.add(new MeaningCrawlingJsonResult(subtitleWord.getKorWord(), text));
             totalDictionaryJsonResult = new TotalDictionaryJsonResult(subtitleWord.getKorWord(), list);
         } else {    //공백이 없어 영영사전 API 결과를 보여줄 경우
             log.info("text without blank: {}", text);
+
             String dictionaryResponse = webClientForDictionaryAPI.get()
                     .uri(uriBuilder -> uriBuilder.path("/api/v3/references/collegiate/json/" + text).queryParam("key", "07deffac-df36-4825-8b8d-2793bf701080").build())
                     .retrieve()
@@ -120,6 +123,11 @@ public class StudyingService {
             List<MeaningCrawlingJsonResult> dictionaryResult = extractDtValues(dictionaryJson).stream()
                     .map(translatedText -> new MeaningCrawlingJsonResult(subtitleWord.getKorWord(), translatedText))
                     .collect(Collectors.toList());
+
+            if(dictionaryResult.isEmpty()) {    //사전 API 결과가 없을 경우
+                dictionaryResult.add(new MeaningCrawlingJsonResult(subtitleWord.getKorWord(), text));
+            }
+
             totalDictionaryJsonResult = new TotalDictionaryJsonResult(subtitleWord.getKorWord(), dictionaryResult);
         }
         DictionaryResponse dictionaryResponse = saveWord(totalDictionaryJsonResult, subtitleWord);
@@ -130,6 +138,9 @@ public class StudyingService {
         return String.format("{\"source\":\"%s\",\"target\":\"%s\",\"text\":\"%s\"}", sourceLang, targetLang, text);
     }
 
+    /**
+     * 영영사전 API 결과값에서 영어로 번역된 의미 파트만 추출1
+     */
     private List<String> extractDtValues(JsonNode rootNode) {
         List<String> dtValues = new ArrayList<>();
         if (rootNode.isArray()) {
@@ -140,6 +151,9 @@ public class StudyingService {
         return dtValues;
     }
 
+    /**
+     * 영영사전 API 결과값에서 영어로 번역된 의미 파트만 추출2
+     */
     private void extractDtFromNode(JsonNode node, List<String> dtValues) {
         if (node.isObject()) {
             Iterator<String> fieldNames = node.fieldNames();

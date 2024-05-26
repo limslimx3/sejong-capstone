@@ -12,6 +12,8 @@ import com.sejong.capstone.repository.VideoTagRepository;
 import com.sejong.capstone.service.VideoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,7 +61,7 @@ public class VideoApiController {
     /**
      * 비디오 좋아요 처리하는 핸들러
      */
-    @PutMapping("/api/video/like")
+    @GetMapping("/api/video/like")
     public ResponseEntity setLikeVideo(@SessionAttribute(name = "loginMember") Member loginMember, @RequestParam("videoId") Long videoId) {
         int like = videoService.setLikeVideo(loginMember, videoId);
         return ResponseEntity.ok(like);
@@ -87,7 +89,8 @@ public class VideoApiController {
      */
     @GetMapping("/api/video/mostTag")
     public ResponseEntity getMostTag() {
-        List<String> top5MostUsed = videoTagRepository.findTop5MostUsed();
+        Pageable pageable = PageRequest.of(0, 5);
+        List<String> top5MostUsed = videoTagRepository.findTop5MostUsed(pageable);
         return ResponseEntity.ok(new VideoTagResponse(top5MostUsed));
     }
 }
