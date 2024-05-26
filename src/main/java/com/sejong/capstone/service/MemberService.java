@@ -24,6 +24,7 @@ public class MemberService {
     public Long signup(SignupForm signupForm) {
         signupValidation(signupForm);
         String encodedPassword = passwordEncoder.encode(signupForm.getPassword());
+        log.info("role = {}", signupForm.getMemberRole());
         Member member = Member.createMember(signupForm.getMemberId(), encodedPassword, signupForm.getName(), signupForm.getEmail(), MemberRole.valueOf(signupForm.getMemberRole()));
         memberRepository.save(member);
         return member.getId();
@@ -31,11 +32,11 @@ public class MemberService {
 
     public Member login(LoginForm loginForm) {
         loginValidation(loginForm);
-        return memberRepository.findByMemberId(loginForm.getLoginId());
+        return memberRepository.findByMemberId(loginForm.getLoginId()).orElseThrow();
     }
 
     private void loginValidation(LoginForm loginForm) {
-        Member member = memberRepository.findByMemberId(loginForm.getLoginId());
+        Member member = memberRepository.findByMemberId(loginForm.getLoginId()).orElse(null);
         if (member == null) {
             throw new IllegalStateException("해당하는 아이디가 없습니다.");
         }
@@ -45,9 +46,21 @@ public class MemberService {
     }
 
     private void signupValidation(SignupForm signupForm) {
-        Member findMember = memberRepository.findByMemberId(signupForm.getMemberId());
+        Member findMember = memberRepository.findByMemberId(signupForm.getMemberId()).orElse(null);
         if (findMember != null) {
             throw new IllegalStateException("이미 가입된 회원입니다.");
+        }
+    }
+
+    /**
+     * ID값 중복체크
+     */
+    public boolean loginValidation(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId).orElse(null);
+        if (member == null) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

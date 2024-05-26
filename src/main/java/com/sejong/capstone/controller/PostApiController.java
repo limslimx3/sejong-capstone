@@ -66,7 +66,10 @@ public class PostApiController {
     }
 
     @DeleteMapping("/api/post/{id}")
-    public void postDelete(@PathVariable("id") Long postId) {
+    public void postDelete(@PathVariable("id") Long postId, @SessionAttribute("loginMember") Member loginMember) {
+        if(loginMember == null) {
+            throw new IllegalArgumentException("로그인이 필요합니다.");
+        }
         postRepository.deleteById(postId);
     }
 }
