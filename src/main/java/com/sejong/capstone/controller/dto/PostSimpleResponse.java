@@ -4,6 +4,7 @@ import com.sejong.capstone.domain.Post;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +29,8 @@ public class PostSimpleResponse {
         this.postTags = post.getPostTags().stream()
                 .map(postTag -> postTag.getName())
                 .collect(Collectors.toList());
-        this.videoId = post.getVideo().getId();
+        this.videoId = Optional.ofNullable(post.getVideo())
+                .map(video -> video.getId())
+                .orElse(null);
     }
 }

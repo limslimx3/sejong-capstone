@@ -16,6 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p join fetch p.member m where p.id = :postId")
     Optional<Post> findPostMemberCommentsPostTagsById(@Param("postId") Long postId);
 
-    @Query("select p from Post p join fetch p.member m join fetch p.video v")
-    List<Post> findAllPostMemberVideo();
+    //join fetch가 아닌 left join fetch를 통해 N+1 문제를 해결함과 동시에 video가 null값인 경우도 조회할 수 있도록 함
+    @Query("select p from Post p join fetch p.member m left join fetch p.video v order by p.updatedAt desc")
+    List<Post> findAllPostMemberVideoOrderByUploadDate();
 }

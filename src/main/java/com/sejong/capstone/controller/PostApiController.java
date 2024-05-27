@@ -43,7 +43,7 @@ public class PostApiController {
      */
     @GetMapping("/api/post")
     public ResponseEntity postList() {
-        List<PostSimpleResponse> resultList = postRepository.findAllPostMemberVideo().stream()
+        List<PostSimpleResponse> resultList = postRepository.findAllPostMemberVideoOrderByUploadDate().stream()
                 .map(post -> new PostSimpleResponse(post))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new PostListResponse(resultList));
