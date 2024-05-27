@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DictionaryDetailResponse {
+    private Long wordId;
     private String wordName;
     private String wordMeaning;
 }

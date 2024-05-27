@@ -7,8 +7,12 @@ import com.sejong.capstone.controller.dto.DictionaryDetailResponse;
 import com.sejong.capstone.controller.dto.DictionaryResponse;
 import com.sejong.capstone.controller.dto.MeaningCrawlingJsonResult;
 import com.sejong.capstone.controller.dto.TotalDictionaryJsonResult;
+import com.sejong.capstone.domain.Member;
+import com.sejong.capstone.domain.Note;
 import com.sejong.capstone.domain.SubtitleWord;
 import com.sejong.capstone.domain.Word;
+import com.sejong.capstone.repository.MemberRepository;
+import com.sejong.capstone.repository.NoteRepository;
 import com.sejong.capstone.repository.SubtitleWordRepository;
 import com.sejong.capstone.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +46,8 @@ public class StudyingService {
     private final ObjectMapper objectMapper;
     private final WordRepository wordRepository;
     private final SubtitleWordRepository subtitleWordRepository;
+    private final MemberRepository memberRepository;
+    private final NoteRepository noteRepository;
 
 //    /**
 //     * 한국어 단어로 Word 테이블을 조회하여
@@ -188,10 +194,18 @@ public class StudyingService {
         List<DictionaryDetailResponse> dictionaryDetailResponses = new ArrayList<>();
         for (MeaningCrawlingJsonResult real : jsonResult.getEngMeanings()) {
             Word word = Word.createWord(real.getRealWord(), real.getMeaning(), subtitleWord);
-            DictionaryDetailResponse dictionaryDetailResponse = new DictionaryDetailResponse(real.getRealWord(), real.getMeaning());
+            DictionaryDetailResponse dictionaryDetailResponse = new DictionaryDetailResponse(word.getId(), real.getRealWord(), real.getMeaning());
             dictionaryDetailResponses.add(dictionaryDetailResponse);
             wordRepository.save(word);
         }
         return new DictionaryResponse(dictionaryDetailResponses);
+    }
+
+    @Transactional
+    public void addWordToNote(Long memberId, Long wordId) {
+        Member member = memberRepository.findById(memberId).orElseThrow();
+        Word word = wordRepository.findById(wordId).orElseThrow();
+        Note note = Note.createNote(member, word);
+        noteRepository.save(note);
     }
 }
