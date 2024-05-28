@@ -1,7 +1,10 @@
 package com.sejong.capstone.controller;
 
 import com.sejong.capstone.controller.dto.*;
+import com.sejong.capstone.domain.Channel;
 import com.sejong.capstone.domain.Member;
+import com.sejong.capstone.domain.etc.MemberRole;
+import com.sejong.capstone.repository.ChannelRepository;
 import com.sejong.capstone.repository.MemberRepository;
 import com.sejong.capstone.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,11 +22,11 @@ import java.util.List;
 public class MemberApiController {
 
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/api/members")
     public Long signup(@RequestBody SignupForm signupForm) {
-        return memberService.signup(signupForm);
+        Member member = memberService.signup(signupForm);
+        return member.getId();
     }
 
     @PostMapping("/api/login/checkId")

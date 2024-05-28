@@ -54,6 +54,10 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     private List<Comment> comments = new ArrayList<>();
 
+    @Setter
+    @OneToOne(mappedBy = "member", fetch = FetchType.LAZY)
+    private Channel channel;
+
     /**
      * 생성 메서드
      */
