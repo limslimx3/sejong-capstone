@@ -17,6 +17,10 @@ public class SubtitleWord extends BaseEntity {
     @Column(name = "subtitle_word_id")
     private Long id;
 
+    @Setter
+    @Column(name = "subtitle_word_ver", nullable = false)
+    private int subtitleWordVer;
+
     @Column(nullable = false)
     private int seq;
 
@@ -38,8 +42,9 @@ public class SubtitleWord extends BaseEntity {
     /**
      * 생성 메서드
      */
-    public static SubtitleWord createSubtitleWord(int seq, String korWord, SubtitleSentence subtitleSentence) {
+    public static SubtitleWord createSubtitleWord(int subtitleWordVer, int seq, String korWord, SubtitleSentence subtitleSentence) {
         SubtitleWord subtitleWord = new SubtitleWord();
+        subtitleWord.setSubtitleWordVer(subtitleWordVer);
         subtitleWord.setSeq(seq);
         subtitleWord.setKorWord(korWord);
 

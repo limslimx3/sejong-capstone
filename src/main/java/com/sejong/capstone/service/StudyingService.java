@@ -3,18 +3,9 @@ package com.sejong.capstone.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sejong.capstone.controller.dto.DictionaryDetailResponse;
-import com.sejong.capstone.controller.dto.DictionaryResponse;
-import com.sejong.capstone.controller.dto.MeaningCrawlingJsonResult;
-import com.sejong.capstone.controller.dto.TotalDictionaryJsonResult;
-import com.sejong.capstone.domain.Member;
-import com.sejong.capstone.domain.Note;
-import com.sejong.capstone.domain.SubtitleWord;
-import com.sejong.capstone.domain.Word;
-import com.sejong.capstone.repository.MemberRepository;
-import com.sejong.capstone.repository.NoteRepository;
-import com.sejong.capstone.repository.SubtitleWordRepository;
-import com.sejong.capstone.repository.WordRepository;
+import com.sejong.capstone.controller.dto.*;
+import com.sejong.capstone.domain.*;
+import com.sejong.capstone.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +39,8 @@ public class StudyingService {
     private final SubtitleWordRepository subtitleWordRepository;
     private final MemberRepository memberRepository;
     private final NoteRepository noteRepository;
+    private final MistranslationWordRepository mistranslationWordRepository;
+    private final MistranslationSentenceRepository mistranslationSentenceRepository;
 
 //    /**
 //     * 한국어 단어로 Word 테이블을 조회하여
@@ -130,13 +123,13 @@ public class StudyingService {
                     .map(translatedText -> new MeaningCrawlingJsonResult(subtitleWord.getKorWord(), translatedText))
                     .collect(Collectors.toList());
 
-            if(dictionaryResult.isEmpty()) {    //사전 API 결과가 없을 경우
+            if (dictionaryResult.isEmpty()) {    //사전 API 결과가 없을 경우
                 dictionaryResult.add(new MeaningCrawlingJsonResult(subtitleWord.getKorWord(), text));
             }
 
             totalDictionaryJsonResult = new TotalDictionaryJsonResult(subtitleWord.getKorWord(), dictionaryResult);
         }
-        DictionaryResponse dictionaryResponse = saveWord(totalDictionaryJsonResult, subtitleWord);
+        DictionaryResponse dictionaryResponse = saveWordAndReturnJson(totalDictionaryJsonResult, subtitleWord);
         return dictionaryResponse;
     }
 
@@ -190,22 +183,56 @@ public class StudyingService {
      * DB Word 테이블에 저장
      */
     @Transactional
-    public DictionaryResponse saveWord(TotalDictionaryJsonResult jsonResult, SubtitleWord subtitleWord) {
+    public DictionaryResponse saveWordAndReturnJson(TotalDictionaryJsonResult jsonResult, SubtitleWord subtitleWord) {
         List<DictionaryDetailResponse> dictionaryDetailResponses = new ArrayList<>();
         for (MeaningCrawlingJsonResult real : jsonResult.getEngMeanings()) {
             Word word = Word.createWord(real.getRealWord(), real.getMeaning(), subtitleWord);
-            DictionaryDetailResponse dictionaryDetailResponse = new DictionaryDetailResponse(word.getId(), real.getRealWord(), real.getMeaning());
-            dictionaryDetailResponses.add(dictionaryDetailResponse);
+            DictionaryDetailResponse dictionaryDetailResponseVer1 = new DictionaryDetailResponse(word.getId(), false, real.getRealWord(), real.getMeaning());
+            dictionaryDetailResponses.add(dictionaryDetailResponseVer1);
+            if (subtitleWord.getSubtitleWordVer() == 2) {
+                MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordId(subtitleWord.getId()).orElseThrow();
+                DictionaryDetailResponse dictionaryDetailResponseVer2 = new DictionaryDetailResponse(mistranslationWord.getId(), true, real.getRealWord(), mistranslationWord.getCorrectedMeaning());
+                dictionaryDetailResponses.add(dictionaryDetailResponseVer2);
+            }
             wordRepository.save(word);
         }
         return new DictionaryResponse(dictionaryDetailResponses);
     }
 
+    /**
+     * 단어장에 단어 추가
+     */
     @Transactional
-    public void addWordToNote(Long memberId, Long wordId) {
+    public void addWordToNote(Long memberId, Long id, boolean isCorrected) {
         Member member = memberRepository.findById(memberId).orElseThrow();
-        Word word = wordRepository.findById(wordId).orElseThrow();
-        Note note = Note.createNote(member, word);
+        MistranslationWord mistranslationWord = null;
+        Word word = null;
+        if (isCorrected) {  //수정된 단어 추가한 경우
+            mistranslationWord = mistranslationWordRepository.findById(id).orElseThrow();
+        } else {
+            word = wordRepository.findById(id).orElseThrow();
+        }
+        Note note = Note.createNote(member, word, mistranslationWord);
         noteRepository.save(note);
+    }
+
+    /**
+     * 단어 오역 신고
+     */
+    @Transactional
+    public void reportWord(Long subtitleWordId) {
+        SubtitleWord subtitleWord = subtitleWordRepository.findById(subtitleWordId).orElseThrow();
+        MistranslationWord mistranslationWord = MistranslationWord.createMistranslationWord(false, subtitleWord);
+        mistranslationWordRepository.save(mistranslationWord);
+    }
+
+    /**
+     * 단어 오역 수정
+     */
+    @Transactional
+    public void correctWord(MistranslationWordReportRequest request) {
+        MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordId(request.getSubtitleWordId()).orElseThrow();
+        mistranslationWord.correctMistranslationWord(request.getCorrectedMeaning());
+        mistranslationWord.getSubtitleWord().setSubtitleWordVer(2);
     }
 }

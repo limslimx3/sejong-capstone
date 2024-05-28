@@ -2,11 +2,13 @@ package com.sejong.capstone.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sejong.capstone.controller.dto.DictionaryResponse;
+import com.sejong.capstone.controller.dto.MistranslationWordReportRequest;
 import com.sejong.capstone.controller.dto.NoteInnerResponse;
 import com.sejong.capstone.controller.dto.NoteTotalResponse;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.Note;
 import com.sejong.capstone.repository.NoteRepository;
+import com.sejong.capstone.repository.SubtitleWordRepository;
 import com.sejong.capstone.service.StudyingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,9 +47,9 @@ public class StudyingApiController {
     /**
      * 단어장에 단어 추가
      */
-    @PostMapping("/api/note/{wordId}")
-    public ResponseEntity addNote(@SessionAttribute(name = "loginMember") Member loginMember, @PathVariable("wordId") Long wordId) {
-        studyingService.addWordToNote(loginMember.getId(), wordId);
+    @PostMapping("/api/note/{id}")
+    public ResponseEntity addNote(@SessionAttribute(name = "loginMember") Member loginMember, @PathVariable("id") Long id, @RequestParam boolean isCorrected) {
+        studyingService.addWordToNote(loginMember.getId(), id, isCorrected);
         return ResponseEntity.ok().build();
     }
 
@@ -57,10 +59,28 @@ public class StudyingApiController {
     @DeleteMapping("/api/note/{noteId}")
     public ResponseEntity deleteNote(@SessionAttribute(name = "loginMember") Member loginMember, @PathVariable("noteId") Long noteId) {
         Note note = noteRepository.findById(noteId).orElseThrow();
-        if(!note.getMember().getId().equals(loginMember.getId())) {
+        if (!note.getMember().getId().equals(loginMember.getId())) {
             throw new IllegalStateException("해당 노트에 대한 권한이 없습니다.");
         }
         noteRepository.delete(note);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 단어 오역 신고 기능
+     */
+    @GetMapping("/api/report/word/{subtitleWordId}")
+    public ResponseEntity reportWord(@PathVariable("subtitleWordId") Long subtitleWordId) {
+        studyingService.reportWord(subtitleWordId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 단어 오역 수정 기능
+     */
+    @PostMapping("/api/report/word")
+    public ResponseEntity correctWord(@RequestBody MistranslationWordReportRequest request) {
+        studyingService.correctWord(request);
         return ResponseEntity.ok().build();
     }
 }

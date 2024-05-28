@@ -23,13 +23,18 @@ public class Note {
     @JoinColumn(name = "word_id")
     private Word word;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mistranslation_word_id")
+    private MistranslationWord mistranslationWord;
+
     /**
      * 생성 메서드
      */
-    public static Note createNote(Member member, Word word) {
+    public static Note createNote(Member member, Word word, MistranslationWord mistranslationWord) {
         Note note = new Note();
         note.setMember(member);
         note.setWord(word);
+        note.setMistranslationWord(mistranslationWord);
         return note;
     }
 }

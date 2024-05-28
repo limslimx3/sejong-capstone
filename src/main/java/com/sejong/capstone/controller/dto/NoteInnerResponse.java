@@ -16,9 +16,17 @@ public class NoteInnerResponse {
 
     public NoteInnerResponse(Note note) {
         this.noteId = note.getId();
-        this.wordName = note.getWord().getWordName();
-        this.wordMeaning = note.getWord().getWordMeaning();
-        this.videoId = note.getWord().getSubtitleWord().getSubtitleSentence().getVideo().getId();
-        this.timeline = note.getWord().getSubtitleWord().getSubtitleSentence().getTimeline();
+
+        if (note.getWord() == null) {
+            this.wordName = note.getMistranslationWord().getSubtitleWord().getKorWord();
+            this.wordMeaning = note.getMistranslationWord().getCorrectedMeaning();
+            this.videoId = note.getMistranslationWord().getSubtitleWord().getSubtitleSentence().getVideo().getId();
+            this.timeline = note.getMistranslationWord().getSubtitleWord().getSubtitleSentence().getTimeline();
+        } else if (note.getMistranslationWord() == null) {
+            this.wordName = note.getWord().getWordName();
+            this.wordMeaning = note.getWord().getWordMeaning();
+            this.videoId = note.getWord().getSubtitleWord().getSubtitleSentence().getVideo().getId();
+            this.timeline = note.getWord().getSubtitleWord().getSubtitleSentence().getTimeline();
+        }
     }
 }

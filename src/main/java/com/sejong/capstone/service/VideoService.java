@@ -65,7 +65,7 @@ public class VideoService {
             int idx = 0;
             SubtitleSentence subtitleSentence = SubtitleSentence.createSubtitleSentence(1, subtitleJsonResult.getStart(), subtitleJsonResult.getKorText(), subtitleJsonResult.getEngText(), video);
             for (String korWord : subtitleJsonResult.getKorWordText()) {
-                SubtitleWord.createSubtitleWord(++idx, korWord, subtitleSentence);
+                SubtitleWord.createSubtitleWord(1, ++idx, korWord, subtitleSentence);
             }
         }
     }

@@ -6,6 +6,8 @@ import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.etc.MemberRole;
 import com.sejong.capstone.repository.ChannelRepository;
 import com.sejong.capstone.repository.MemberRepository;
+import com.sejong.capstone.repository.MistranslationSentenceRepository;
+import com.sejong.capstone.repository.MistranslationWordRepository;
 import com.sejong.capstone.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -22,8 +24,11 @@ import java.util.List;
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final MistranslationWordRepository mistranslationWordRepository;
+    private final MistranslationSentenceRepository mistranslationSentenceRepository;
 
     @PostMapping("/api/members")
+
     public Long signup(@RequestBody SignupForm signupForm) {
         Member member = memberService.signup(signupForm);
         return member.getId();
@@ -41,7 +46,16 @@ public class MemberApiController {
         HttpSession session = request.getSession();
         session.setAttribute("loginMember", loginMember);
 
-        return ResponseEntity.ok(new LoginResponse(loginMember));
+        // 제공자의 경우 신고된 단어중 아직 수정되지 않은 단어가 있다면 알림
+        if(loginMember.getRole().equals(MemberRole.PROVIDER)) {
+            boolean isReportExist = mistranslationWordRepository.findAllFetchJoin().stream()
+                    .anyMatch(mistranslationWord -> (mistranslationWord.getSubtitleWord().getSubtitleSentence().getVideo().getMember().getId().equals(loginMember.getId())) && (!mistranslationWord.isCorrected()));
+            if(isReportExist) {
+                return ResponseEntity.ok(new LoginResponse(loginMember, true));
+            }
+        }
+
+        return ResponseEntity.ok(new LoginResponse(loginMember, false));
     }
 
     @PostMapping("/logout")
