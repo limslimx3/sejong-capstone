@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
 @RestController
 public class ChannelApiController {
@@ -23,8 +20,12 @@ public class ChannelApiController {
      */
     @GetMapping("/api/channel")
     public ChannelInfoResponse getChannel(@SessionAttribute("loginMember") Member loginMember) {
+        Member member = memberRepository.findById(loginMember.getId()).orElseThrow();
+        if (member.getVideos().isEmpty()) {
+            return new ChannelInfoResponse(member);
+        }
         return memberRepository.findMemberWithChannelById(loginMember.getId()).stream()
-                .map(member -> new ChannelInfoResponse(member))
+                .map(m -> new ChannelInfoResponse(m))
                 .findFirst()
                 .orElseThrow();
     }

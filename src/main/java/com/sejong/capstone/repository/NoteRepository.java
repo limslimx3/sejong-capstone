@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface NoteRepository extends JpaRepository<Note, Long> {
 
-    @Query("select n from Note n join fetch n.word w join fetch w.subtitleWord sw1 join fetch sw1.subtitleSentence ss1 join fetch ss1.video v1 join fetch n.mistranslationWord mw join fetch mw.subtitleWord sw2 join fetch sw2.subtitleSentence ss2 join fetch ss2.video v2 where n.member.id = :id")
+    @Query("select n from Note n left join fetch n.word w left join fetch w.subtitleWord sw1 left join fetch sw1.subtitleSentence ss1 left join fetch ss1.video v1 left join fetch n.mistranslationWord mw left join fetch mw.subtitleWord sw2 left join fetch sw2.subtitleSentence ss2 left join fetch ss2.video v2 where n.member.id = :id")
     List<Note> findAllNoteSubtitleVideoByMemberId(@Param("id") Long id);
 }

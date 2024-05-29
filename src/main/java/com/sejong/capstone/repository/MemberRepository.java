@@ -11,6 +11,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByMemberId(String memberId);
 
-    @Query("select m from Member m join fetch m.channel c where m.id = :id")
+    @Query("select m from Member m join fetch m.videos v where m.id = :id order by v.uploadDate desc")
     Optional<Member> findMemberWithChannelById(@Param("id") Long id);
 }

@@ -21,8 +21,12 @@ public class ChannelInfoResponse {
         this.channelName = member.getChannel().getChannelName();
         this.likes = member.getChannel().getLikes();
         this.channelCreatedAt = member.getChannel().getCreatedAt();
-        this.channelVideos = member.getVideos().stream()
-                .map(video -> new ChannelVideoResponse(video))
-                .collect(Collectors.toList());
+        if (member.getVideos().isEmpty()) {
+            this.channelVideos = null;
+        } else {
+            this.channelVideos = member.getVideos().stream()
+                    .map(video -> new ChannelVideoResponse(video))
+                    .collect(Collectors.toList());
+        }
     }
 }

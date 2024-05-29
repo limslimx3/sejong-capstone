@@ -187,6 +187,7 @@ public class StudyingService {
         List<DictionaryDetailResponse> dictionaryDetailResponses = new ArrayList<>();
         for (MeaningCrawlingJsonResult real : jsonResult.getEngMeanings()) {
             Word word = Word.createWord(real.getRealWord(), real.getMeaning(), subtitleWord);
+            wordRepository.save(word);
             DictionaryDetailResponse dictionaryDetailResponseVer1 = new DictionaryDetailResponse(word.getId(), false, real.getRealWord(), real.getMeaning());
             dictionaryDetailResponses.add(dictionaryDetailResponseVer1);
             if (subtitleWord.getSubtitleWordVer() == 2) {
@@ -194,7 +195,6 @@ public class StudyingService {
                 DictionaryDetailResponse dictionaryDetailResponseVer2 = new DictionaryDetailResponse(mistranslationWord.getId(), true, real.getRealWord(), mistranslationWord.getCorrectedMeaning());
                 dictionaryDetailResponses.add(dictionaryDetailResponseVer2);
             }
-            wordRepository.save(word);
         }
         return new DictionaryResponse(dictionaryDetailResponses);
     }
