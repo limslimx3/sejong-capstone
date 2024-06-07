@@ -1,14 +1,12 @@
 package com.sejong.capstone.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sejong.capstone.controller.dto.DictionaryResponse;
-import com.sejong.capstone.controller.dto.MistranslationWordReportRequest;
-import com.sejong.capstone.controller.dto.NoteInnerResponse;
-import com.sejong.capstone.controller.dto.NoteTotalResponse;
+import com.sejong.capstone.controller.dto.*;
 import com.sejong.capstone.domain.Member;
 import com.sejong.capstone.domain.Note;
+import com.sejong.capstone.repository.MistranslationWordRepository;
 import com.sejong.capstone.repository.NoteRepository;
-import com.sejong.capstone.repository.SubtitleWordRepository;
+import com.sejong.capstone.repository.SubtitleSentenceRepository;
 import com.sejong.capstone.service.StudyingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +21,8 @@ public class StudyingApiController {
 
     private final StudyingService studyingService;
     private final NoteRepository noteRepository;
+    private final MistranslationWordRepository mistranslationWordRepository;
+    private final SubtitleSentenceRepository subtitleSentenceRepository;
 
     /**
      * 사전 API 기능 처리
@@ -38,6 +38,9 @@ public class StudyingApiController {
      */
     @GetMapping("/api/note")
     public ResponseEntity getNoteList(@SessionAttribute(name = "loginMember") Member loginMember) {
+        if(loginMember == null) {
+            throw new IllegalStateException("로그인이 필요합니다.");
+        }
         List<NoteInnerResponse> resultList = noteRepository.findAllNoteSubtitleVideoByMemberId(loginMember.getId()).stream()
                 .map(note -> new NoteInnerResponse(note))
                 .toList();
@@ -76,11 +79,51 @@ public class StudyingApiController {
     }
 
     /**
+     * 오역단어 목록 조회
+     */
+    @GetMapping("/api/report/words/{videoId}")
+    public ResponseEntity getReportWordList(@SessionAttribute(name = "loginMember") Member loginMember, @PathVariable("videoId") Long videoId) {
+        List<TotalMistranslationWordResponse> resultList = mistranslationWordRepository.findAllByMemberAndVideo(loginMember.getId(), videoId).stream()
+                .map(mistranslationWord -> new TotalMistranslationWordResponse(mistranslationWord))
+                .toList();
+        return ResponseEntity.ok(new MistranslationWordResponse(resultList));
+    }
+
+    /**
      * 단어 오역 수정 기능
      */
     @PostMapping("/api/report/word")
     public ResponseEntity correctWord(@RequestBody MistranslationWordReportRequest request) {
         studyingService.correctWord(request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 문장 오역 신고 기능
+     */
+    @GetMapping("/api/report/sentence/{subtitleSentenceId}")
+    public ResponseEntity reportSentence(@PathVariable("subtitleSentenceId") Long subtitleSentenceId) {
+        studyingService.reportSentence(subtitleSentenceId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 오역문장 포함한 모든 문장 목록 조회
+     */
+    @GetMapping("/api/report/sentences/{videoId}")
+    public ResponseEntity getReportSentenceList(@SessionAttribute(name = "loginMember") Member loginMember, @PathVariable("videoId") Long videoId) {
+        List<TotalSentenceResponse> resultList = subtitleSentenceRepository.findAllSubtitleSentenceByMemberAndVideo(loginMember.getId(), videoId).stream()
+                .map(subtitleSentence -> new TotalSentenceResponse(subtitleSentence))
+                .toList();
+        return ResponseEntity.ok(new SentenceResponse(resultList));
+    }
+
+    /**
+     * 문장 오역 수정 기능
+     */
+    @PostMapping("/api/report/sentence")
+    public ResponseEntity correctSentence(@RequestBody MistranslationSentenceReportRequest request) {
+        studyingService.correctSentence(request);
         return ResponseEntity.ok().build();
     }
 }

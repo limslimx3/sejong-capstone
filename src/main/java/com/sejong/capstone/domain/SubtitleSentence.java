@@ -1,5 +1,6 @@
 package com.sejong.capstone.domain;
 
+import com.sejong.capstone.controller.dto.MistranslationSentenceJsonResult;
 import com.sejong.capstone.domain.etc.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -39,6 +40,11 @@ public class SubtitleSentence extends BaseEntity {
     @OneToMany(mappedBy = "subtitleSentence", cascade = CascadeType.ALL)
     private List<SubtitleWord> subtitleWords = new ArrayList<>();
 
+    @Setter
+    @OneToMany(mappedBy = "subtitleSentence")
+    private List<MistranslationSentence> mistranslationSentences = new ArrayList<>();
+
+
     /**
      * 연관관계 편의 메서드
      */
@@ -60,5 +66,14 @@ public class SubtitleSentence extends BaseEntity {
         subtitleSentence.setVideo(video);
 
         return subtitleSentence;
+    }
+
+    /**
+     * 편의 메서드
+     */
+    public void correctMistranslationSentence(MistranslationSentenceJsonResult jsonResult) {
+        this.korSubtitle = jsonResult.getCorrectedKorSentence();
+        this.engSubtitle = jsonResult.getCorrectedEngSentence();
+        this.subtitleVer = 2;
     }
 }

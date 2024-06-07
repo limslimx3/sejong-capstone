@@ -19,16 +19,24 @@ public class MistranslationWord {
     @Column(name = "corrected_meaning")
     private String correctedMeaning;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subtitle_word_id", nullable = false)
     private SubtitleWord subtitleWord;
 
     /**
+     * 연관관계 편의 메서드
+     */
+    public void setSubtitleWord(SubtitleWord subtitleWord) {
+        this.subtitleWord = subtitleWord;
+        subtitleWord.getMistranslationWords().add(this);
+    }
+
+    /**
      * 생성 메서드
      */
-    public static MistranslationWord createMistranslationWord(boolean isCorrected, SubtitleWord subtitleWord) {
+    public static MistranslationWord createMistranslationWord(SubtitleWord subtitleWord) {
         MistranslationWord mistranslationWord = new MistranslationWord();
-        mistranslationWord.setCorrected(isCorrected);
+        mistranslationWord.setCorrected(false);
         mistranslationWord.setSubtitleWord(subtitleWord);
         return mistranslationWord;
     }

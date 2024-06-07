@@ -14,7 +14,7 @@ public class LoginResponse {
     private String name;
     private String email;
     private MemberRole role;
-    private boolean isReportExist;  // 제공자의 경우 신고된 단어중 아직 수정되지 않은 단어가 있는지 여부
+    private boolean isReportExist;  // 제공자의 경우 신고된 단어,문장중 아직 수정되지 않은 것이 있는지 여부
 
     public LoginResponse(Member member, boolean isReportExist) {
         this.id = member.getId();

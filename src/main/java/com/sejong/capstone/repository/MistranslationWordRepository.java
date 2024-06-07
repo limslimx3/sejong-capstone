@@ -14,5 +14,14 @@ public interface MistranslationWordRepository extends JpaRepository<Mistranslati
     List<MistranslationWord> findAllFetchJoin();
 
     @Query("select mw from MistranslationWord mw join fetch mw.subtitleWord sw where sw.id = :subtitleWordId")
-    Optional<MistranslationWord> findBySubtitleWordId(@Param("subtitleWordId") Long subtitleWordId);
+    Optional<MistranslationWord> findBySubtitleWordIdJoinFetch(@Param("subtitleWordId") Long subtitleWordId);
+
+    @Query("select mw from MistranslationWord mw join fetch mw.subtitleWord sw where sw.id = :subtitleWordId order by mw.id desc")
+    List<MistranslationWord> findBySubtitleWordId(@Param("subtitleWordId") Long subtitleWordId);
+
+    @Query("select mw from MistranslationWord mw where mw.subtitleWord.subtitleSentence.video.member.id = :memberId and mw.subtitleWord.subtitleSentence.video.id = :videoId and mw.corrected = false")
+    List<MistranslationWord> findAllByMemberAndVideo(@Param("memberId") Long memberId, @Param("videoId") Long videoId);
+
+    @Query("select distinct mw from MistranslationWord mw where mw.subtitleWord.subtitleSentence.video.member.id = :id")
+    List<MistranslationWord> findByMemberId(@Param("id") Long id);
 }

@@ -24,6 +24,7 @@ public class SubtitleSentenceResponse {
         this.korText = subtitleSentence.getKorSubtitle();
         this.engText = subtitleSentence.getEngSubtitle();
         this.korWords = subtitleSentence.getSubtitleWords().stream()
+                .filter(subtitleWord -> subtitleWord.getSubtitleWordVer() != 0)
                 .map(subtitleWord -> new SubtitleWordResponse(subtitleWord))
                 .collect(Collectors.toList());
     }

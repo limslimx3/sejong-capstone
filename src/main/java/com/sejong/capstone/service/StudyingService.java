@@ -34,9 +34,11 @@ public class StudyingService {
 
     private final WebClient webClientForPapagoAPI;
     private final WebClient webClientForDictionaryAPI;
+    private final WebClient webClientForFastAPI;
     private final ObjectMapper objectMapper;
     private final WordRepository wordRepository;
     private final SubtitleWordRepository subtitleWordRepository;
+    private final SubtitleSentenceRepository subtitleSentenceRepository;
     private final MemberRepository memberRepository;
     private final NoteRepository noteRepository;
     private final MistranslationWordRepository mistranslationWordRepository;
@@ -191,7 +193,7 @@ public class StudyingService {
             DictionaryDetailResponse dictionaryDetailResponseVer1 = new DictionaryDetailResponse(word.getId(), false, real.getRealWord(), real.getMeaning());
             dictionaryDetailResponses.add(dictionaryDetailResponseVer1);
             if (subtitleWord.getSubtitleWordVer() == 2) {
-                MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordId(subtitleWord.getId()).orElseThrow();
+                MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordIdJoinFetch(subtitleWord.getId()).orElseThrow();
                 DictionaryDetailResponse dictionaryDetailResponseVer2 = new DictionaryDetailResponse(mistranslationWord.getId(), true, real.getRealWord(), mistranslationWord.getCorrectedMeaning());
                 dictionaryDetailResponses.add(dictionaryDetailResponseVer2);
             }
@@ -222,7 +224,7 @@ public class StudyingService {
     @Transactional
     public void reportWord(Long subtitleWordId) {
         SubtitleWord subtitleWord = subtitleWordRepository.findById(subtitleWordId).orElseThrow();
-        MistranslationWord mistranslationWord = MistranslationWord.createMistranslationWord(false, subtitleWord);
+        MistranslationWord mistranslationWord = MistranslationWord.createMistranslationWord(subtitleWord);
         mistranslationWordRepository.save(mistranslationWord);
     }
 
@@ -231,8 +233,47 @@ public class StudyingService {
      */
     @Transactional
     public void correctWord(MistranslationWordReportRequest request) {
-        MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordId(request.getSubtitleWordId()).orElseThrow();
+        MistranslationWord mistranslationWord = mistranslationWordRepository.findBySubtitleWordId(request.getSubtitleWordId()).stream().findFirst().orElseThrow();
         mistranslationWord.correctMistranslationWord(request.getCorrectedMeaning());
         mistranslationWord.getSubtitleWord().setSubtitleWordVer(2);
+    }
+
+    /**
+     * 문장 오역 신고
+     */
+    @Transactional
+    public void reportSentence(Long subtitleSentenceId) {
+        SubtitleSentence subtitleSentence = subtitleSentenceRepository.findById(subtitleSentenceId).orElseThrow();
+        MistranslationSentence mistranslationSentence = MistranslationSentence.createMistranslationSentence(subtitleSentence);
+        mistranslationSentenceRepository.save(mistranslationSentence);
+    }
+
+    /**
+     * 문장 오역 수정
+     */
+    @Transactional
+    public void correctSentence(MistranslationSentenceReportRequest request) {
+        MistranslationSentenceJsonResult jsonResult = webClientForFastAPI.post()
+                .uri("/translate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(MistranslationSentenceJsonResult.class)
+                .block();
+
+        MistranslationSentence mistranslationSentence = mistranslationSentenceRepository.findBySubtitleSentenceId(jsonResult.getSubtitleSentenceId()).stream().findFirst().orElseThrow();
+        mistranslationSentence.getSubtitleSentence().correctMistranslationSentence(jsonResult);
+        mistranslationSentence.setCorrected(true);
+
+        //오역 수정된 문장에 속하는 단어들 삭제후 새로 삽입
+        log.info("subtitleSentenceId: {}", mistranslationSentence.getSubtitleSentence().getId());
+        subtitleWordRepository.findBySubtitleSentenceId(mistranslationSentence.getSubtitleSentence().getId()).stream()
+                .forEach(subtitleWord -> subtitleWord.setSubtitleWordVer(0));
+        String[] wordArr = jsonResult.getCorrectedKorSentence().split(" ");
+        int i=0;
+        for (String word : wordArr) {
+            SubtitleWord subtitleWord = SubtitleWord.createSubtitleWord(1, i++, word, mistranslationSentence.getSubtitleSentence());
+            subtitleWordRepository.save(subtitleWord);
+        }
     }
 }

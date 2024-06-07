@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "subtitle_word")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,6 +33,13 @@ public class SubtitleWord extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subtitle_id")
     private SubtitleSentence subtitleSentence;
+
+    @OneToMany(mappedBy = "subtitleWord", orphanRemoval = true)
+    private List<Word> words = new ArrayList<>();
+
+    @Setter
+    @OneToMany(mappedBy = "subtitleWord", orphanRemoval = true)
+    private List<MistranslationWord> mistranslationWords = new ArrayList<>();
 
     /**
      * 연관관계 편의 메서드
