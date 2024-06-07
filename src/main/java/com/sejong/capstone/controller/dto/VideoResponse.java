@@ -23,6 +23,7 @@ public class VideoResponse {
     private LocalDateTime uploadDate;
     private String providerName;
     private boolean isLiked;
+    private String channelName;
     private List<String> videoTags;
     private List<SubtitleSentenceResponse> subtitleSentences;
     private List<CommunityResponse> communityResponses;
@@ -38,6 +39,7 @@ public class VideoResponse {
         this.providerName = video.getMember().getName();
         this.isLiked = video.getVideoLikes().stream()
                 .anyMatch(videoLike -> videoLike.getMember().getId().equals(memberId));
+        this.channelName = video.getMember().getChannel().getChannelName();
         this.videoTags = video.getVideoTags().stream()
                 .map(videoTag -> videoTag.getName())
                 .collect(Collectors.toList());

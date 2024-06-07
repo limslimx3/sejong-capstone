@@ -15,6 +15,7 @@ public class RecommendVideoResponse {
     private String content;
     private int likes;
     private int views;
+    private String channelName;
 
     public RecommendVideoResponse(Video video) {
         this.videoId = video.getId();
@@ -22,5 +23,6 @@ public class RecommendVideoResponse {
         this.content = video.getContent();
         this.likes = video.getLike();
         this.views = video.getViews();
+        this.channelName = video.getMember().getChannel().getChannelName();
     }
 }

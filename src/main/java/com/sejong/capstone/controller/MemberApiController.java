@@ -48,9 +48,12 @@ public class MemberApiController {
 
         // 제공자의 경우 신고된 단어중 아직 수정되지 않은 단어가 있다면 알림
         if(loginMember.getRole().equals(MemberRole.PROVIDER)) {
-            boolean isReportExist = mistranslationWordRepository.findAllFetchJoin().stream()
+            boolean isWordReportExist = mistranslationWordRepository.findAllFetchJoin().stream()
                     .anyMatch(mistranslationWord -> (mistranslationWord.getSubtitleWord().getSubtitleSentence().getVideo().getMember().getId().equals(loginMember.getId())) && (!mistranslationWord.isCorrected()));
-            if(isReportExist) {
+            boolean isSentenceReportExist = mistranslationSentenceRepository.findAllFetchJoin().stream()
+                    .anyMatch(mistranslationSentence -> (mistranslationSentence.getSubtitleSentence().getVideo().getMember().getId().equals(loginMember.getId())) && (!mistranslationSentence.isCorrected()));
+
+            if(isWordReportExist || isSentenceReportExist) {
                 return ResponseEntity.ok(new LoginResponse(loginMember, true));
             }
         }

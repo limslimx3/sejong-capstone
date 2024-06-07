@@ -1,6 +1,8 @@
 package com.sejong.capstone.controller.dto;
 
 import com.sejong.capstone.domain.Member;
+import com.sejong.capstone.domain.MistranslationSentence;
+import com.sejong.capstone.domain.MistranslationWord;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ public class ChannelInfoResponse {
     private LocalDateTime channelCreatedAt;
     private List<ChannelVideoResponse> channelVideos;
 
-    public ChannelInfoResponse(Member member) {
+    public ChannelInfoResponse(Member member, List<MistranslationSentence> mistranslationSentences, List<MistranslationWord> mistranslationWords) {
         this.channelName = member.getChannel().getChannelName();
         this.likes = member.getChannel().getLikes();
         this.channelCreatedAt = member.getChannel().getCreatedAt();
@@ -25,7 +27,7 @@ public class ChannelInfoResponse {
             this.channelVideos = null;
         } else {
             this.channelVideos = member.getVideos().stream()
-                    .map(video -> new ChannelVideoResponse(video))
+                    .map(video -> new ChannelVideoResponse(video, mistranslationSentences, mistranslationWords))
                     .collect(Collectors.toList());
         }
     }

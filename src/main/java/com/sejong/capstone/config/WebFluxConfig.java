@@ -10,7 +10,8 @@ public class WebFluxConfig {
     @Bean
     public WebClient webClientForFastAPI() {
         return WebClient.builder()
-                .baseUrl("http://101.235.73.77:8000")
+                .baseUrl("http://203.250.148.132:8080")
+//                .baseUrl("http://101.235.73.77:8000")
                 .build();
     }
 
