@@ -18,6 +18,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -155,6 +157,32 @@ public class StudyingService {
     /**
      * 영영사전 API 결과값에서 영어로 번역된 의미 파트만 추출2
      */
+//    private void extractDtFromNode(JsonNode node, List<String> dtValues) {
+//        if (node.isObject()) {
+//            Iterator<String> fieldNames = node.fieldNames();
+//            while (fieldNames.hasNext()) {
+//                String fieldName = fieldNames.next();
+//                JsonNode childNode = node.get(fieldName);
+//                if (fieldName.equals("dt") && childNode.isArray()) {
+//                    for (JsonNode dtNode : childNode) {
+//                        if (dtNode.isArray() && dtNode.size() > 1) {
+//                            JsonNode textNode = dtNode.get(1);
+//                            if (textNode.isTextual()) {
+//                                dtValues.add(textNode.asText());
+//                            }
+//                        }
+//                    }
+//                } else {
+//                    extractDtFromNode(childNode, dtValues);
+//                }
+//            }
+//        } else if (node.isArray()) {
+//            for (JsonNode childNode : node) {
+//                extractDtFromNode(childNode, dtValues);
+//            }
+//        }
+//    }
+
     private void extractDtFromNode(JsonNode node, List<String> dtValues) {
         if (node.isObject()) {
             Iterator<String> fieldNames = node.fieldNames();
@@ -166,7 +194,19 @@ public class StudyingService {
                         if (dtNode.isArray() && dtNode.size() > 1) {
                             JsonNode textNode = dtNode.get(1);
                             if (textNode.isTextual()) {
-                                dtValues.add(textNode.asText().replace("{bc}", ""));
+                                String text = textNode.asText();
+                                text = text.replaceAll("\\{bc\\}", " "); // Replace {bc} with space
+                                if (text.contains("{sx") || text.contains("{dx")) {
+                                    // Ignore texts that contain {sx or {dx
+                                    continue;
+                                }
+                                // Extract only the label part of {a_link|label}
+                                Pattern pattern = Pattern.compile("\\{a_link\\|([^}]*)\\}");
+                                Matcher matcher = pattern.matcher(text);
+                                if (matcher.find()) {
+                                    text = matcher.group(1).trim(); // Trim to remove any leading or trailing spaces
+                                }
+                                dtValues.add(text);
                             }
                         }
                     }
